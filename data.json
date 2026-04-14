@@ -43,5 +43,14 @@
     "tags": [
       "量词，游戏"
     ]
+  },
+  {
+    "title": "倒计时插件",
+    "author": "sunhao",
+    "path": "tools/倒计时插件.html",
+    "cover": "assets/倒计时插件.png",
+    "tags": [
+      "倒计时"
+    ]
   }
 ]
