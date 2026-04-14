@@ -1,0 +1,21 @@
+[
+  {
+    "title": "彩虹字",
+    "author": "孙皓，吴俊桦",
+    "path": "tools/caihongzi.html",
+    "cover": "assets/caihongzi.png",
+    "tags": [
+      "汉字"
+    ]
+  },
+  {
+    "title": "熊猫词语卡点",
+    "author": "孙皓",
+    "path": "tools/xiongmaociyukadian.html",
+    "cover": "assets/xiongmaociyukadian.png",
+    "tags": [
+      "词语",
+      "游戏"
+    ]
+  }
+]

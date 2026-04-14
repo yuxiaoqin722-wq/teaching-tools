@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教学活动管理工具</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "Microsoft YaHei", sans-serif;
+      background: #f6f7fb;
+      color: #111827;
+      padding: 32px 16px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 38px;
+      font-weight: 900;
+    }
+
+    .desc {
+      color: #6b7280;
+      margin-bottom: 24px;
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin: 26px 0 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 14px 14px;
+      border: 1px solid #d8dde6;
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+      background: #fff;
+    }
+
+    input:focus, textarea:focus {
+      border-color: #7ecf6f;
+      box-shadow: 0 0 0 4px rgba(126, 207, 111, 0.14);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .primary-btn {
+      background: #7bd35f;
+      color: #0f172a;
+    }
+
+    .primary-btn:hover {
+      background: #70cb54;
+    }
+
+    .secondary-btn {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .secondary-btn:hover {
+      background: #e8ebf0;
+    }
+
+    .danger-btn {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .danger-btn:hover {
+      background: #fecaca;
+    }
+
+    .item-list {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .item {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .item-meta {
+      color: #6b7280;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .tag {
+      background: #eef2f7;
+      color: #4b5563;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .item-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .item-actions button {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    textarea {
+      min-height: 260px;
+      resize: vertical;
+      font-family: Menlo, Monaco, Consolas, monospace;
+      line-height: 1.6;
+    }
+
+    .small-note {
+      color: #6b7280;
+      font-size: 13px;
+      margin-top: 8px;
+      line-height: 1.7;
+    }
+
+    .empty {
+      color: #9ca3af;
+      font-size: 14px;
+      padding: 12px 0;
+    }
+
+    @media (max-width: 700px) {
+      .item {
+        flex-direction: column;
+      }
+
+      .item-actions {
+        flex-direction: row;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>教学活动管理工具</h1>
+    <div class="desc">
+      这个版本会自动读取你当前的 <strong>data.json</strong>。<br>
+      你只需要新增活动，然后点击“生成完整 data.json”，最后复制结果覆盖原来的 <strong>data.json</strong> 即可。
+    </div>
+
+    <div class="section-title">新增活动</div>
+
+    <div class="form-grid">
+      <input id="title" placeholder="活动名称">
+      <input id="author" placeholder="作者">
+      <input id="path" placeholder="HTML路径（例如：tools/caihongzi.html）">
+      <input id="cover" placeholder="图片路径（例如：assets/caihongzi.png）">
+      <input id="tags" placeholder="标签（用逗号分隔，例如：汉字,HSK1）">
+    </div>
+
+    <div class="button-row">
+      <button class="primary-btn" onclick="addItem()">添加活动</button>
+      <button class="secondary-btn" onclick="generate()">生成完整 data.json</button>
+      <button class="secondary-btn" onclick="copyOutput()">复制生成结果</button>
+      <button class="danger-btn" onclick="clearForm()">清空输入框</button>
+    </div>
+
+    <div class="section-title">当前活动列表</div>
+    <div id="list" class="item-list"></div>
+    <div id="emptyState" class="empty" style="display:none;">当前还没有活动。</div>
+
+    <div class="section-title">生成结果</div>
+    <textarea id="output" placeholder="点击“生成完整 data.json”后，这里会出现完整内容。"></textarea>
+    <div class="small-note">
+      用法：点击“生成完整 data.json” → 点击“复制生成结果” → 打开 data.json → 全部替换保存。
+    </div>
+  </div>
+
+  <script>
+    let items = [];
+
+    async function loadData() {
+      try {
+        const res = await fetch("data.json");
+        const data = await res.json();
+
+        if (Array.isArray(data)) {
+          items = data;
+        } else {
+          items = [];
+        }
+      } catch (error) {
+        console.error("读取 data.json 失败：", error);
+        items = [];
+      }
+
+      renderList();
+    }
+
+    function normalizeTags(rawTags) {
+      return rawTags
+        .split(",")
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0);
+    }
+
+    function addItem() {
+      const title = document.getElementById("title").value.trim();
+      const author = document.getElementById("author").value.trim();
+      const path = document.getElementById("path").value.trim();
+      const cover = document.getElementById("cover").value.trim();
+      const tags = normalizeTags(document.getElementById("tags").value);
+
+      if (!title || !author || !path || !cover) {
+        alert("请先填写完整：活动名称、作者、HTML路径、图片路径。");
+        return;
+      }
+
+      if (tags.length === 0) {
+        alert("请至少填写一个标签。");
+        return;
+      }
+
+      const obj = { title, author, path, cover, tags };
+      items.push(obj);
+
+      renderList();
+      clearForm();
+      alert("已添加到当前活动列表。记得最后点击“生成完整 data.json”。");
+    }
+
+    function removeItem(index) {
+      const confirmed = confirm("确定删除这个活动吗？");
+      if (!confirmed) return;
+
+      items.splice(index, 1);
+      renderList();
+    }
+
+    function renderList() {
+      const list = document.getElementById("list");
+      const empty = document.getElementById("emptyState");
+
+      if (!items.length) {
+        list.innerHTML = "";
+        empty.style.display = "block";
+        return;
+      }
+
+      empty.style.display = "none";
+
+      list.innerHTML = items.map((item, index) => `
+        <div class="item">
+          <div class="item-info">
+            <div class="item-title">${item.title || ""}</div>
+            <div class="item-meta">
+              作者：${item.author || ""}<br>
+              HTML：${item.path || ""}<br>
+              图片：${item.cover || ""}
+            </div>
+            <div class="tag-row">
+              ${(item.tags || []).map(tag => `<span class="tag">${tag}</span>`).join("")}
+            </div>
+          </div>
+
+          <div class="item-actions">
+            <button class="danger-btn" onclick="removeItem(${index})">删除</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function generate() {
+      const json = JSON.stringify(items, null, 2);
+      document.getElementById("output").value = json;
+      alert("已生成完整 data.json。");
+    }
+
+    async function copyOutput() {
+      const output = document.getElementById("output").value.trim();
+
+      if (!output) {
+        alert("请先点击“生成完整 data.json”。");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(output);
+        alert("已复制。现在去覆盖原来的 data.json。");
+      } catch (error) {
+        const textarea = document.getElementById("output");
+        textarea.select();
+        document.execCommand("copy");
+        alert("已复制。现在去覆盖原来的 data.json。");
+      }
+    }
+
+    function clearForm() {
+      document.getElementById("title").value = "";
+      document.getElementById("author").value = "";
+      document.getElementById("path").value = "";
+      document.getElementById("cover").value = "";
+      document.getElementById("tags").value = "";
+    }
+
+    loadData();
+  </script>
+
+</body>
+</html>

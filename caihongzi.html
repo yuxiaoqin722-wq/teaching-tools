@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>对外汉语教学神器 - 笔画部件 & 双行字帖版 v45.6</title>
+    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+    <style>
+        :root { --primary: #FF8C42; --secondary: #3F8EFC; --bg: #f4f7f9; }
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 30px; margin: 0; }
+        
+        .header-title { font-size: 24px; color: #333; margin-bottom: 20px; font-weight: bold; }
+        
+        /* 顶部控制栏 */
+        .no-print { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; align-items: center; justify-content: center; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        input { padding: 12px; width: 60px; border-radius: 12px; border: 2px solid #ddd; text-align: center; font-size: 22px; outline: none; transition: border-color 0.3s;}
+        input:focus { border-color: var(--secondary); }
+        
+        button { padding: 10px 15px; border: none; border-radius: 12px; cursor: pointer; color: white; font-weight: bold; transition: all 0.2s; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
+        .btn-gen { background: var(--secondary); font-size: 15px; padding: 12px 20px;}
+        .btn-dl-main { background: #FF8C42; } 
+        .btn-dl-outline { background: #1abc9c; }
+        .btn-dl-strokes { background: #9b59b6; }
+        .btn-dl-comp { background: #e74c3c; } 
+        .btn-dl-worksheet { background: #2c3e50; }
+        
+        button span { display: block; font-size: 11px; font-weight: normal; opacity: 0.9; margin-top: 2px;}
+        button:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2);}
+        
+        /* 预览卡片区 */
+        .canvas-area { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; max-width: 1200px;}
+        .card { background: white; padding: 15px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center;}
+        
+        .grid-container { position: relative; width: 240px; height: 240px; border: 2px solid #333; background: white; overflow: hidden; border-radius: 8px;}
+        svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .label { text-align: center; margin-top: 10px; font-weight: bold; color: #555; font-size: 14px; }
+
+        .stroke-number { font-family: Arial; font-size: 80px; font-weight: 900; fill: #000; paint-order: stroke; stroke: #fff; stroke-width: 14px; }
+
+        /* 部件显示区 */
+        .components-panel { width: 100%; max-width: 1100px; background: white; padding: 20px; border-radius: 24px; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .comp-display { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px;}
+        .comp-item { width: 150px; height: 150px; border: 2px dashed #ddd; border-radius: 12px; position: relative; background: #fafafa; flex-shrink: 0;}
+
+        /* 字帖区 */
+        .worksheet-panel { width: 100%; max-width: 1100px; background: white; padding: 30px; border-radius: 24px; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .worksheet-row-wrapper { overflow-x: auto; margin-top: 15px; padding-bottom: 10px; }
+        .worksheet-row { display: flex; flex-wrap: nowrap; gap: 2px; background: #333; padding: 2px; width: fit-content; margin-bottom: 5px; }
+        .worksheet-cell { width: 85px; height: 85px; position: relative; background: white; flex-shrink: 0; }
+        .row-label { font-size: 14px; color: #666; font-weight: bold; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;}
+        .row-label i { font-style: normal; background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 12px;}
+
+        @media print {
+            .no-print, .header-title, .canvas-area, .components-panel { display: none !important; }
+            .worksheet-panel { box-shadow: none; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-title">👨‍🏫 中文课堂：汉字综合教学工具 (v45.6)</div>
+
+<div class="no-print">
+    <input type="text" id="charInput" maxlength="1" value="美">
+    <button class="btn-gen" onclick="initAll()">生成并演示<br><span>Generate & Play</span></button>
+    <div style="width: 2px; height: 40px; background: #eee; margin: 0 5px;"></div>
+    
+    <button class="btn-dl-main" onclick="downloadMainImage()">🖼️ 下载彩虹图<span>Download Full Color</span></button>
+    <button class="btn-dl-outline" onclick="downloadOutlineImage()">🎨 下载空心字<span>Download Outline</span></button>
+    <button class="btn-dl-strokes" onclick="downloadAllStrokes()">🌈 下载彩色笔画<span>Download Strokes</span></button>
+    <button class="btn-dl-comp" onclick="downloadComponents()">🧩 下载汉字部件<span>Download Radicals</span></button>
+    <button class="btn-dl-worksheet" onclick="downloadWorksheet()">📥 下载双行字帖<span>Download Sheet</span></button>
+</div>
+
+<div class="canvas-area">
+    <div class="card">
+        <div id="target1" class="grid-container"></div>
+        <div class="label">彩虹笔顺图</div>
+    </div>
+    <div class="card">
+        <div id="target2" class="grid-container"></div>
+        <div class="label">循环动画</div>
+    </div>
+    <div class="card">
+        <div id="target3" class="grid-container"></div>
+        <div class="label">空心轮廓</div>
+    </div>
+</div>
+
+<div class="components-panel">
+    <div class="row-label">🧩 汉字部件拆解 (Radical / Components)</div>
+    <div id="compDisplay" class="comp-display"></div>
+</div>
+
+<div class="worksheet-panel" id="worksheetArea">
+    <div class="row-label"><i>ROW 1</i> 笔顺展示行 (Stroke Order Guide)</div>
+    <div class="worksheet-row-wrapper">
+        <div id="row1" class="worksheet-row"></div>
+    </div>
+    
+    <div style="height: 20px;"></div>
+    
+    <div class="row-label"><i>ROW 2</i> 跟写练习行 (Practice & Self-Write)</div>
+    <div class="worksheet-row-wrapper">
+        <div id="row2" class="worksheet-row"></div>
+    </div>
+</div>
+
+<canvas id="exportCanvas" width="1024" height="1024" style="display:none;"></canvas>
+<canvas id="sheetCanvas" style="display:none;"></canvas>
+
+<script>
+    let writer = null;
+    let charDataGlobal = null;
+    let isLooping = false;
+    let currentLoopChar = '';
+    
+    const COLORS = ['#E74C3C', '#E67E22', '#F1C40F', '#2ECC71', '#3498DB', '#9B59B6', '#1ABC9C', '#FF6B81', '#45AAF2', '#20BF6B', '#FA8231'];
+    const TRANSFORM = "scale(0.8, -0.8) translate(128, -980)";
+
+    function createGridSvg(size = 380, color = "#e0e0e0", isBold = false) {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+        let d = `M${size/2},0 V${size} M0,${size/2} H${size} M0,0 L${size},${size} M${size},0 L0,${size}`;
+        const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        p.setAttribute("d", d); p.setAttribute("stroke", color); 
+        p.setAttribute("stroke-dasharray", isBold ? "" : "5,5"); 
+        p.setAttribute("stroke-width", isBold ? "2" : "1");
+        p.setAttribute("fill", "none");
+        svg.appendChild(p);
+        return svg;
+    }
+
+    async function initAll() {
+        isLooping = false; // 停止之前的循环
+        const char = document.getElementById('charInput').value || '美';
+        currentLoopChar = char;
+
+        ['target1', 'target2', 'target3', 'compDisplay', 'row1', 'row2'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.innerHTML = '';
+        });
+        
+        try {
+            const data = await HanziWriter.loadCharacterData(char);
+            charDataGlobal = data;
+
+            // 1. 静态图
+            document.getElementById('target1').appendChild(createGridSvg(240)).parentElement.appendChild(generateSvgGroup(data.strokes, data.medians, true));
+            
+            // 2. 动画图 (设置循环逻辑)
+            writer = HanziWriter.create('target2', char, { 
+                width: 240, 
+                height: 240, 
+                padding: 20, 
+                showOutline: true,
+                strokeAnimationSpeed: 1.5,
+                delayBetweenStrokes: 150
+            });
+            data.strokes.forEach((_, i) => writer.updateColor(`stroke${i}`, COLORS[i % COLORS.length]));
+            
+            // 开启无限循环
+            isLooping = true;
+            runInfiniteAnimation();
+
+            // 3. 轮廓图
+            document.getElementById('target3').appendChild(createGridSvg(240)).parentElement.appendChild(generateSvgGroup(data.strokes, null, false, null, true));
+
+            analyzeAndDisplayComponents(data);
+            buildWorksheet(char, data);
+
+        } catch (e) { console.error(e); alert("数据加载失败"); }
+    }
+
+    // 无限循环动画递归函数
+    function runInfiniteAnimation() {
+        if (!isLooping) return;
+        writer.animateCharacter({
+            onComplete: () => {
+                if (isLooping) {
+                    setTimeout(() => {
+                        if (isLooping) runInfiniteAnimation();
+                    }, 2000); // 播完后停顿 2 秒
+                }
+            }
+        });
+    }
+
+    function generateSvgGroup(strokes, medians, showNumber, colorOverride = null, isOutline = false) {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 1024 1024");
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("transform", TRANSFORM);
+
+        if (isOutline) {
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", strokes.join(' '));
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke", colorOverride || "#ccc");
+            path.setAttribute("stroke-width", "10");
+            path.setAttribute("stroke-dasharray", "20,10");
+            g.appendChild(path);
+        } else {
+            strokes.forEach((pathData, i) => {
+                const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                p.setAttribute("d", pathData); 
+                p.setAttribute("fill", colorOverride || COLORS[i % COLORS.length]);
+                g.appendChild(p);
+            });
+        }
+
+        if (showNumber && medians) {
+            medians.forEach((median, i) => {
+                if (median) {
+                    const startPoint = median[0]; 
+                    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                    text.setAttribute("x", startPoint[0] - 30); text.setAttribute("y", startPoint[1] + 30);
+                    text.setAttribute("class", "stroke-number");
+                    text.setAttribute("transform", `scale(1, -1) translate(0, ${-startPoint[1] * 2})`);
+                    text.textContent = i + 1;
+                    g.appendChild(text);
+                }
+            });
+        }
+        svg.appendChild(g);
+        return svg;
+    }
+
+    function analyzeAndDisplayComponents(data) {
+        const container = document.getElementById('compDisplay');
+        const total = data.strokes.length;
+        let comps = [];
+        if (data.radStrokes) {
+            const rad = data.radStrokes;
+            const rest = Array.from({length:total}, (_,i)=>i).filter(i=>!rad.includes(i));
+            comps.push({name:"部首", indices:rad, color:"#e74c3c"});
+            if(rest.length) comps.push({name:"部件", indices:rest, color:"#3498db"});
+        } else {
+            comps.push({name:"全字", indices: Array.from({length:total}, (_,i)=>i), color:"#333"});
+        }
+        comps.forEach(c => {
+            const box = document.createElement('div'); box.className = 'comp-item';
+            box.appendChild(generateSvgGroup(c.indices.map(i=>data.strokes[i]), null, false, c.color));
+            container.appendChild(box);
+        });
+        charDataGlobal.comps = comps;
+    }
+
+    function buildWorksheet(char, data) {
+        const row1 = document.getElementById('row1');
+        const row2 = document.getElementById('row2');
+        const total = data.strokes.length;
+
+        for(let i=1; i <= Math.min(total, 10); i++) {
+            const cell = createCell();
+            cell.appendChild(generateSvgGroup(data.strokes.slice(0, i), null, false, "#333"));
+            row1.appendChild(cell);
+        }
+        const fullCell = createCell();
+        fullCell.appendChild(generateSvgGroup(data.strokes, data.medians, true));
+        row1.appendChild(fullCell);
+        while(row1.children.length < 11) row1.appendChild(createCell());
+
+        const row2Config = [
+            {strokes: data.strokes, color: "#333"},
+            {strokes: data.strokes, color: "#eee"},
+            {strokes: data.strokes, color: "#eee"},
+            {strokes: data.strokes, color: "#eee"},
+            {strokes: data.strokes, color: "#eee"},
+            ...Array(6).fill({strokes: [], color: null})
+        ];
+        row2Config.forEach(conf => {
+            const cell = createCell();
+            if(conf.strokes.length) cell.appendChild(generateSvgGroup(conf.strokes, null, false, conf.color));
+            row2.appendChild(cell);
+        });
+    }
+
+    function createCell() {
+        const cell = document.createElement('div');
+        cell.className = 'worksheet-cell';
+        cell.appendChild(createGridSvg(85, "#ccc"));
+        return cell;
+    }
+
+    async function downloadWorksheet() {
+        const char = document.getElementById('charInput').value || '字';
+        const row1Cells = document.getElementById('row1').children;
+        const row2Cells = document.getElementById('row2').children;
+        const cellSize = 400;
+        const padding = 40;
+        const sheetCanvas = document.getElementById('sheetCanvas');
+        const ctx = sheetCanvas.getContext('2d');
+        sheetCanvas.width = cellSize * 11;
+        sheetCanvas.height = cellSize * 2 + padding;
+        ctx.fillStyle = "white"; ctx.fillRect(0, 0, sheetCanvas.width, sheetCanvas.height);
+        
+        for(let i=0; i<row1Cells.length; i++) await drawCellToCanvas(row1Cells[i], ctx, i * cellSize, 0, cellSize);
+        for(let i=0; i<row2Cells.length; i++) await drawCellToCanvas(row2Cells[i], ctx, i * cellSize, cellSize + padding, cellSize);
+        
+        const link = document.createElement('a');
+        link.download = `${char}_双行练习字帖.png`;
+        link.href = sheetCanvas.toDataURL("image/png");
+        link.click();
+    }
+
+    async function drawCellToCanvas(cellEl, ctx, x, y, size) {
+        const svgs = cellEl.querySelectorAll('svg');
+        if(svgs.length > 0) await drawSvgToCanvas(svgs[0], ctx, x, y, size);
+        if(svgs.length > 1) await drawSvgToCanvas(svgs[1], ctx, x, y, size);
+        ctx.strokeStyle = "#333"; ctx.lineWidth = 2; ctx.strokeRect(x, y, size, size);
+    }
+
+    function drawSvgToCanvas(svg, ctx, x, y, size) {
+        return new Promise(resolve => {
+            const svgClone = svg.cloneNode(true);
+            const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+            style.textContent = ".stroke-number { font-family: Arial; font-size: 80px; font-weight: 900; fill: black; stroke: white; stroke-width: 14px; paint-order: stroke; }";
+            svgClone.insertBefore(style, svgClone.firstChild);
+            const xml = new XMLSerializer().serializeToString(svgClone);
+            const img = new Image();
+            img.onload = () => { ctx.drawImage(img, x, y, size, size); resolve(); };
+            img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(xml)));
+        });
+    }
+
+    async function downloadMainImage() { const svg = generateSvgGroup(charDataGlobal.strokes, charDataGlobal.medians, true); await exportSingleSvg(svg, `${document.getElementById('charInput').value}_彩虹图.png`); }
+    async function downloadOutlineImage() { const svg = generateSvgGroup(charDataGlobal.strokes, null, false, null, true); await exportSingleSvg(svg, `${document.getElementById('charInput').value}_空心轮廓.png`); }
+    async function downloadAllStrokes() {
+        const char = document.getElementById('charInput').value;
+        for(let i=0; i<charDataGlobal.strokes.length; i++) {
+            const svg = generateSvgGroup([charDataGlobal.strokes[i]], null, false, COLORS[i % COLORS.length]);
+            await exportSingleSvg(svg, `${char}_第${i+1}笔.png`);
+            await new Promise(r => setTimeout(r, 200));
+        }
+    }
+    async function downloadComponents() {
+        const char = document.getElementById('charInput').value;
+        for(const c of charDataGlobal.comps) {
+            const svg = generateSvgGroup(c.indices.map(idx=>charDataGlobal.strokes[idx]), null, false, c.color);
+            await exportSingleSvg(svg, `${char}_${c.name}.png`);
+            await new Promise(r => setTimeout(r, 200));
+        }
+    }
+
+    function exportSingleSvg(svg, filename) {
+        return new Promise(resolve => {
+            const canvas = document.getElementById('exportCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0,1024,1024);
+            drawSvgToCanvas(svg, ctx, 0, 0, 1024).then(() => {
+                const link = document.createElement("a");
+                link.href = canvas.toDataURL("image/png"); link.download = filename;
+                link.click(); resolve();
+            });
+        });
+    }
+
+    window.onload = initAll;
+</script>
+</body>
+</html>
