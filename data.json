@@ -1,7 +1,7 @@
 [
   {
     "title": "彩虹字",
-    "author": "孙皓，吴俊桦",
+    "author": "sunhao, wujunhua",
     "path": "tools/caihongzi.html",
     "cover": "assets/caihongzi.png",
     "tags": [
@@ -9,13 +9,39 @@
     ]
   },
   {
-    "title": "熊猫词语卡点",
-    "author": "孙皓",
+    "title": "熊猫词语卡点练习",
+    "author": "sunhao",
     "path": "tools/xiongmaociyukadian.html",
     "cover": "assets/xiongmaociyukadian.png",
     "tags": [
-      "词语",
-      "游戏"
+      "词语， 游戏"
+    ]
+  },
+  {
+    "title": "量词分类游戏（2C1-L1）",
+    "author": "tianzhuyu",
+    "path": "tools/2C1-L1-liangcifenlei.html",
+    "cover": "assets/2C1-L1-liangcifenlei.png",
+    "tags": [
+      "量词，游戏"
+    ]
+  },
+  {
+    "title": "量词分类游戏（2C1-L2）",
+    "author": "tianzhuyu",
+    "path": "tools/2C1-L2-lotterygame.html",
+    "cover": "assets/2C1-L2-lotterygame.png",
+    "tags": [
+      "量词，游戏"
+    ]
+  },
+  {
+    "title": "量词分类游戏（2C1-L3)",
+    "author": "tianzhuyu",
+    "path": "tools/2C1-L3-tetris-game.html",
+    "cover": "assets/2C1-L3-tetris-game.png",
+    "tags": [
+      "量词，游戏"
     ]
   }
 ]
