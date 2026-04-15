@@ -37,5 +37,15 @@
       "对话"
     ],
     "hidden": true
+  },
+  {
+    "title": "词语跟读系统",
+    "path": "tools/1ciyugenduxitong.html",
+    "cover": "assets/1ciyugenduxitong.png",
+    "tags": [
+      "词语",
+      "口语"
+    ],
+    "author": "xiaoqin"
   }
 ]
