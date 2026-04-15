@@ -47,5 +47,14 @@
       "口语"
     ],
     "author": "xiaoqin"
+  },
+  {
+    "title": "任务消消乐",
+    "path": "tools/2taskxiaoxiaole.html",
+    "cover": "assets/2taskxiaoxiaole.png",
+    "tags": [
+      "课堂管理"
+    ],
+    "author": "xiaoqin"
   }
 ]
