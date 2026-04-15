@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>汉字打打乐 · 雅致学中文</title>
+    <!-- 拼音库 pinyin-pro -->
+    <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #F1EFE6;
+            font-family: 'Inter', 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            padding: 28px 32px 50px 32px;
+            position: relative;
+            color: #2C3E2F;
+        }
+
+        /* 淡雅主色调：米白、灰绿、雾蓝 */
+        .dashboard {
+            display: flex;
+            gap: 28px;
+            max-width: 1500px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        /* 左侧主学习区 */
+        .main-area {
+            flex: 3;
+            min-width: 280px;
+            background: #FFFFFFE6;
+            border-radius: 40px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(2px);
+            padding: 24px 28px 36px;
+            transition: all 0.2s;
+            border: 1px solid #D9D2B0;
+        }
+
+        /* 右侧学生任务栏 + 难度 */
+        .student-sidebar {
+            flex: 1;
+            min-width: 250px;
+            background: #FEFCF5;
+            border-radius: 40px;
+            padding: 20px 18px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.04);
+            border: 1px solid #E2DCC5;
+            height: fit-content;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        /* 右侧内部难度选择区 */
+        .difficulty-block {
+            background: #F4F1E4;
+            border-radius: 36px;
+            padding: 16px 14px;
+            margin-bottom: 28px;
+            text-align: center;
+            border: 1px solid #DFD8BE;
+        }
+
+        .difficulty-label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: #6A5E3A;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        select#difficultySelect {
+            background: #FFFFFF;
+            border: 1px solid #CBC2A0;
+            border-radius: 48px;
+            padding: 8px 18px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #3A4A2F;
+            cursor: pointer;
+            width: 100%;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        select#difficultySelect:focus {
+            border-color: #A3B18A;
+        }
+
+        .sidebar-title {
+            font-size: 1.35rem;
+            font-weight: 500;
+            text-align: center;
+            color: #5A6E47;
+            margin: 10px 0 18px 0;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #E2DCC5;
+            padding-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .task-list-side {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .task-side-item {
+            background: #FCFAF2;
+            border-radius: 48px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.12s;
+            border: 1px solid transparent;
+        }
+
+        .task-side-item:hover {
+            background: #F0EDDF;
+            transform: translateX(3px);
+        }
+
+        .task-side-item.active-task {
+            border-color: #A3B18A;
+            background: #F1F0E2;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .task-emoji {
+            font-size: 1.5rem;
+            opacity: 0.7;
+        }
+
+        .task-name-side {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: #4A5B3A;
+            flex: 1;
+        }
+
+        .task-badge {
+            background: #D9D2B0;
+            border-radius: 30px;
+            padding: 2px 10px;
+            font-size: 0.7rem;
+            color: #4C5A3B;
+        }
+
+        /* 头部：教师管理按钮移到左上角，颜色更淡 */
+        .header-bar {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .task-manager-btn {
+            background: #EFEDE2;
+            border: 1px solid #D9D2B0;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: #7C8A63;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(2px);
+        }
+
+        .task-manager-btn:hover {
+            background: #E6E2D2;
+            color: #5E6E4B;
+        }
+
+        /* 标题区域 高级感 */
+        .title-area {
+            text-align: center;
+            margin: 8px 0 20px 0;
+        }
+
+        .main-title {
+            font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+            font-size: 2.8rem;
+            font-weight: 600;
+            color: #4C6842;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .sub-en {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            font-size: 0.9rem;
+            color: #8F9B7A;
+            letter-spacing: 0.5px;
+            font-weight: 400;
+        }
+
+        /* 计时器 */
+        .timer-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #F7F4EA;
+            padding: 10px 20px;
+            border-radius: 60px;
+            margin: 18px 0 25px;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid #E2DCC5;
+        }
+
+        .timer-box {
+            background: #C5CFB2;
+            padding: 4px 18px;
+            border-radius: 48px;
+            font-family: monospace;
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: #2F3D24;
+            letter-spacing: 2px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 14px;
+        }
+
+        .practice-btn {
+            background: #A8B998;
+            border: none;
+            padding: 7px 20px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.1s;
+            box-shadow: none;
+        }
+
+        .practice-btn:active {
+            transform: scale(0.97);
+        }
+
+        .restart-btn {
+            background: #C2B280;
+        }
+
+        /* 词汇网格 */
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px 18px;
+            margin-top: 18px;
+            max-height: 58vh;
+            overflow-y: auto;
+            padding: 4px 2px;
+        }
+
+        .word-card {
+            background: #FEFCF5;
+            border-radius: 36px;
+            padding: 16px 12px 14px;
+            text-align: center;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.03);
+            border: 1px solid #ECE6D2;
+            transition: all 0.2s;
+        }
+
+        .pinyin-area {
+            font-family: '阿里健康体', 'Segoe UI', system-ui;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: #A27B5C;
+            margin-bottom: 8px;
+        }
+
+        .hint-hanzi {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #8F9B7A;
+            background: #F6F3E8;
+            display: inline-block;
+            padding: 2px 14px;
+            border-radius: 40px;
+            margin-bottom: 8px;
+        }
+
+        .english-hint {
+            font-size: 0.8rem;
+            color: #A48C6F;
+            background: #F5F2E6;
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 30px;
+            margin-bottom: 8px;
+            font-style: normal;
+        }
+
+        .input-wrapper {
+            margin-top: 10px;
+        }
+
+        .word-input {
+            width: 100%;
+            padding: 9px 8px;
+            font-size: 1rem;
+            text-align: center;
+            border: 1.5px solid #DCD2BA;
+            border-radius: 48px;
+            background: #FFFFFF;
+            outline: none;
+            transition: 0.1s;
+        }
+
+        .word-input:focus {
+            border-color: #A3B18A;
+            box-shadow: 0 0 0 2px rgba(163, 177, 138, 0.2);
+        }
+
+        .correct-pinyin {
+            color: #5C8F4C !important;
+        }
+        .correct-hanzi-hint {
+            color: #5C8F4C !important;
+            background: #E8F0E0;
+        }
+        .correct-english {
+            color: #5C8F4C !important;
+            background: #E8F0E0;
+        }
+        .correct-input {
+            border-color: #8BA86B !important;
+            background: #F6FCEF;
+        }
+
+        .vocab-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .vocab-grid::-webkit-scrollbar-track {
+            background: #EFEADB;
+            border-radius: 10px;
+        }
+        .vocab-grid::-webkit-scrollbar-thumb {
+            background: #C5CFB2;
+            border-radius: 10px;
+        }
+
+        /* 模态窗 - 淡雅风格 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.2);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #FFFFFFF2;
+            width: 85%;
+            max-width: 950px;
+            max-height: 85vh;
+            border-radius: 48px;
+            padding: 20px 28px;
+            overflow-y: auto;
+            border: 1px solid #D9D2B0;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.1);
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .task-item {
+            background: #FCFAF2;
+            border-radius: 48px;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid #E2DCC5;
+        }
+
+        .task-name {
+            font-weight: 500;
+            font-size: 0.95rem;
+            background: #F0EDDF;
+            padding: 4px 16px;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 30px;
+            color: #6F6A4D;
+        }
+        .icon-btn:hover {
+            background: #E4DECA;
+        }
+
+        .add-task-btn {
+            background: #C2B280;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 48px;
+            font-weight: 500;
+            margin-top: 12px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .import-export-bar {
+            display: flex;
+            gap: 16px;
+            margin: 20px 0 12px;
+            justify-content: flex-end;
+        }
+        .io-btn {
+            background: #E8E4D5;
+            border: 1px solid #CEC7A8;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            color: #5E6E4B;
+            transition: 0.1s;
+        }
+        .io-btn:hover {
+            background: #DCD6C2;
+        }
+        .file-input-label {
+            background: #E8E4D5;
+            border: 1px solid #CEC7A8;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: inline-block;
+            color: #5E6E4B;
+        }
+
+        .word-editor {
+            background: #FEFCF5;
+            border-radius: 32px;
+            padding: 14px;
+            margin-top: 15px;
+            border: 1px solid #EBE5D2;
+        }
+
+        .batch-area {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        textarea {
+            flex: 1;
+            border-radius: 32px;
+            border: 1px solid #D4CCAE;
+            padding: 10px;
+            background: #FFFEF9;
+        }
+        .word-row {
+            display: flex;
+            gap: 10px;
+            margin: 12px 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .word-row input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 40px;
+            border: 1px solid #D4CCAE;
+            background: white;
+        }
+        .close-modal {
+            float: right;
+            font-size: 26px;
+            cursor: pointer;
+            color: #918B6B;
+        }
+
+        /* 右下角署名 淡雅小字 */
+        .signature {
+            position: fixed;
+            bottom: 14px;
+            right: 20px;
+            font-family: '华文隶书', 'LiSu', cursive;
+            font-size: 0.7rem;
+            color: #B5AB88;
+            background: rgba(245, 242, 233, 0.7);
+            padding: 2px 14px;
+            border-radius: 30px;
+            backdrop-filter: blur(2px);
+            z-index: 10;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+
+        .congrats-message {
+            text-align: center;
+            background: #E2E6D3;
+            margin-top: 18px;
+            padding: 12px;
+            border-radius: 48px;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #3C5530;
+        }
+
+        .hidden-task {
+            opacity: 0.6;
+            filter: grayscale(0.1);
+            background: #F0EEE3;
+        }
+        .hidden-badge {
+            background: #CFC9AE;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <!-- 左侧主学习区 -->
+    <div class="main-area">
+        <div class="header-bar">
+            <button id="taskManagerBtn" class="task-manager-btn">📋 教师词库管理</button>
+        </div>
+
+        <div class="title-area">
+            <div class="main-title">汉字打打乐</div>
+            <div class="sub-en">Chinese Typing Practice · Joyful Learning</div>
+        </div>
+
+        <div class="timer-panel">
+            <div class="timer-box">⏱️ <span id="timerDisplay">00:00</span></div>
+            <div class="action-buttons">
+                <button id="startPracticeBtn" class="practice-btn">▶ Start Practice</button>
+                <button id="restartBtn" class="practice-btn restart-btn">🔄 Restart</button>
+            </div>
+        </div>
+
+        <div id="vocabGrid" class="vocab-grid"></div>
+        <div id="congratsMsg"></div>
+    </div>
+
+    <!-- 右侧学生任务栏 + 难度选择 -->
+    <div class="student-sidebar">
+        <div class="difficulty-block">
+            <div class="difficulty-label">
+                <span>📖</span> Practice Mode
+            </div>
+            <select id="difficultySelect">
+                <option value="pinyin">🔤 Pinyin Only</option>
+                <option value="pinyin+hanzi">📖 Pinyin + Hanzi</option>
+                <option value="full">🌏 Pinyin + Hanzi + English</option>
+            </select>
+        </div>
+        <div class="sidebar-title">
+            📚 My Tasks
+        </div>
+        <div id="studentTaskList" class="task-list-side">
+            <!-- 动态渲染学生可见的任务列表 (隐藏的不会显示) -->
+        </div>
+    </div>
+</div>
+
+<div class="signature">小琴调</div>
+
+<!-- 教师管理模态窗（打字合集） -->
+<div id="taskModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" id="closeModalBtn">&times;</span>
+        <h3 style="color:#6B5E3F; margin-bottom: 10px;">✍️ 教师词库管理</h3>
+        <!-- 导入导出按钮区 -->
+        <div class="import-export-bar">
+            <button id="exportDataBtn" class="io-btn">📤 导出词库 (JSON)</button>
+            <label class="file-input-label">
+                📥 导入词库
+                <input type="file" id="importFileInput" accept=".json" style="display: none;">
+            </label>
+        </div>
+        <div id="taskListContainer" class="task-list"></div>
+        <button id="openAddTaskEditor" class="add-task-btn">+ 添加新任务合集</button>
+    </div>
+</div>
+
+<!-- 任务编辑窗（支持英文自动生成、隐藏开关） -->
+<div id="taskEditorModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" id="closeEditorBtn">&times;</span>
+        <h3 id="editorTitle" style="color:#6B5E3F;">📝 编辑任务</h3>
+        <input type="text" id="taskNameInput" placeholder="任务名称 (例如: 日常水果)" style="width:100%; padding:10px; margin:12px 0; border-radius:40px; border:1px solid #D4CCAE;">
+        <div style="display: flex; align-items: center; gap: 15px; margin: 10px 0 8px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="hiddenTaskCheckbox"> 🙈 对学生隐藏此任务
+            </label>
+            <span style="font-size:0.75rem; color:#8F9B7A;">隐藏后学生任务栏不可见，教师仍可编辑</span>
+        </div>
+        <div class="batch-area">
+            <textarea id="batchWords" rows="2" placeholder="一键粘贴汉字 (空格/逗号/换行分隔)&#10;例如：苹果 香蕉 熊猫 快乐"></textarea>
+            <button id="batchGenerateBtn" style="background:#C2B280; border-radius:40px; padding:0 18px; border:none; color:white;">✨ 批量生成拼音+英文</button>
+        </div>
+        <div id="wordsEditorList" class="word-editor"></div>
+        <div style="display:flex; gap:15px; margin-top:20px;">
+            <button id="saveTaskBtn" style="background:#A8B998; padding:10px; border-radius:40px; border:none; font-weight:500; color:white;">💾 保存任务</button>
+            <button id="cancelEditBtn" style="background:#E0DCCD; padding:10px; border-radius:40px; border:none;">取消</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { pinyin } = window.pinyinPro || { pinyin: (str) => str };
+    function getPinyinForWord(word) {
+        if (!window.pinyinPro) return word;
+        try {
+            let py = window.pinyinPro.pinyin(word, { toneType: 'symbol', type: 'array' });
+            return Array.isArray(py) ? py.join(' ') : py;
+        } catch(e) { return word; }
+    }
+
+    // 增强英文翻译字典
+    function generateSimpleEnglish(hanzi) {
+        const dict = {
+            '苹果': 'apple', '香蕉': 'banana', '草莓': 'strawberry', '橙子': 'orange', '葡萄': 'grape',
+            '西瓜': 'watermelon', '芒果': 'mango', '梨': 'pear', '桃子': 'peach', '樱桃': 'cherry',
+            '熊猫': 'panda', '老虎': 'tiger', '狮子': 'lion', '兔子': 'rabbit', '猫': 'cat', '狗': 'dog',
+            '大象': 'elephant', '长颈鹿': 'giraffe', '猴子': 'monkey', '鸟': 'bird', '鱼': 'fish',
+            '吃饭': 'eat', '喝水': 'drink', '睡觉': 'sleep', '走路': 'walk', '跑步': 'run',
+            '读书': 'read', '写字': 'write', '听音乐': 'listen to music', '看电视': 'watch TV', '早上': 'morning',
+            '晚上': 'evening', '今天': 'today', '明天': 'tomorrow', '快乐': 'happy', '悲伤': 'sad',
+            '美丽': 'beautiful', '大': 'big', '小': 'small', '红色': 'red', '蓝色': 'blue', '黄色': 'yellow',
+            '一': 'one', '二': 'two', '三': 'three', '四': 'four', '五': 'five', '六': 'six', '七': 'seven', '八': 'eight', '九': 'nine', '十': 'ten'
+        };
+        return dict[hanzi] || '';
+    }
+
+    let tasks = [];
+    let currentTaskId = null;
+    let currentWords = [];
+    let wordStatus = [];
+    let timerInterval = null;
+    let timerSeconds = 0;
+    let isTimerRunning = false;
+    let allCorrectFlag = false;
+
+    // DOM 元素
+    const difficultySelect = document.getElementById('difficultySelect');
+    const vocabGrid = document.getElementById('vocabGrid');
+    const timerDisplaySpan = document.getElementById('timerDisplay');
+    const startBtn = document.getElementById('startPracticeBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const taskManagerBtn = document.getElementById('taskManagerBtn');
+    const taskModal = document.getElementById('taskModal');
+    const taskEditorModal = document.getElementById('taskEditorModal');
+    const taskListContainer = document.getElementById('taskListContainer');
+    const wordsEditorListDiv = document.getElementById('wordsEditorList');
+    const saveTaskBtn = document.getElementById('saveTaskBtn');
+    const batchGenerateBtn = document.getElementById('batchGenerateBtn');
+    const batchWordsTextarea = document.getElementById('batchWords');
+    const taskNameInput = document.getElementById('taskNameInput');
+    const editorTitle = document.getElementById('editorTitle');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const closeEditorBtn = document.getElementById('closeEditorBtn');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const openAddTaskEditor = document.getElementById('openAddTaskEditor');
+    const studentTaskListDiv = document.getElementById('studentTaskList');
+    const hiddenTaskCheckbox = document.getElementById('hiddenTaskCheckbox');
+    const exportDataBtn = document.getElementById('exportDataBtn');
+    const importFileInput = document.getElementById('importFileInput');
+
+    let editingTaskId = null;
+
+    // 计时器函数
+    function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } isTimerRunning = false; }
+    function startTimer() { if (timerInterval) stopTimer(); isTimerRunning = true; timerInterval = setInterval(() => { if (isTimerRunning && !allCorrectFlag) { timerSeconds++; updateTimerDisplay(); } }, 1000); }
+    function updateTimerDisplay() { let mins = Math.floor(timerSeconds / 60); let secs = timerSeconds % 60; timerDisplaySpan.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`; }
+    function resetTimer(keepStopped = true) { stopTimer(); timerSeconds = 0; updateTimerDisplay(); isTimerRunning = false; allCorrectFlag = false; }
+
+    function checkAllCorrect() {
+        if (!currentWords.length) return false;
+        const allDone = wordStatus.every(flag => flag === true);
+        const congratsDiv = document.getElementById('congratsMsg');
+        if (allDone && !allCorrectFlag) {
+            allCorrectFlag = true;
+            stopTimer();
+            const minutes = Math.floor(timerSeconds / 60);
+            const seconds = timerSeconds % 60;
+            const timeStr = `${minutes} min ${seconds} sec`;
+            congratsDiv.innerHTML = `<div class="congrats-message">🎉 Congratulations! All correct! 🎉<br>⏱️ Your time: ${timeStr}. Keep going!</div>`;
+            return true;
+        } else if (!allDone && allCorrectFlag) {
+            allCorrectFlag = false;
+            congratsDiv.innerHTML = '';
+            if (!isTimerRunning && timerSeconds === 0) startTimer();
+        } else if (!allDone) congratsDiv.innerHTML = '';
+        return allDone;
+    }
+
+    function renderPractice() {
+        if (!currentWords.length) {
+            vocabGrid.innerHTML = '<div style="grid-column:span 3; text-align:center; padding:30px;">✨ 请从右侧选择一个任务开始练习 ✨</div>';
+            return;
+        }
+        const mode = difficultySelect.value;
+        vocabGrid.innerHTML = '';
+        wordStatus = new Array(currentWords.length).fill(false);
+        currentWords.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'word-card';
+            const pinyinSpan = document.createElement('div');
+            pinyinSpan.className = 'pinyin-area';
+            pinyinSpan.innerText = item.pinyin;
+            pinyinSpan.id = `pinyin-${idx}`;
+            card.appendChild(pinyinSpan);
+            if (mode === 'pinyin+hanzi' || mode === 'full') {
+                const hanziHint = document.createElement('div');
+                hanziHint.className = 'hint-hanzi';
+                hanziHint.innerText = item.hanzi;
+                hanziHint.id = `hint-${idx}`;
+                card.appendChild(hanziHint);
+            }
+            if (mode === 'full') {
+                const engHint = document.createElement('div');
+                engHint.className = 'english-hint';
+                engHint.innerText = item.english || '';
+                engHint.id = `eng-${idx}`;
+                card.appendChild(engHint);
+            }
+            const inputWrapper = document.createElement('div');
+            inputWrapper.className = 'input-wrapper';
+            const inputBox = document.createElement('input');
+            inputBox.type = 'text';
+            inputBox.placeholder = '✍️ type here';
+            inputBox.className = 'word-input';
+            inputBox.id = `input-${idx}`;
+            inputBox.autocomplete = 'off';
+            inputBox.addEventListener('paste', (e) => e.preventDefault());
+            inputBox.addEventListener('copy', (e) => e.preventDefault());
+            inputBox.addEventListener('input', (e) => {
+                const userVal = e.target.value.trim();
+                const isCorrect = (userVal === item.hanzi);
+                wordStatus[idx] = isCorrect;
+                const pinyinElem = document.getElementById(`pinyin-${idx}`);
+                const hintElem = document.getElementById(`hint-${idx}`);
+                const engElem = document.getElementById(`eng-${idx}`);
+                if (isCorrect) {
+                    pinyinElem?.classList.add('correct-pinyin');
+                    if (hintElem) hintElem.classList.add('correct-hanzi-hint');
+                    if (engElem) engElem.classList.add('correct-english');
+                    inputBox.classList.add('correct-input');
+                } else {
+                    pinyinElem?.classList.remove('correct-pinyin');
+                    if (hintElem) hintElem.classList.remove('correct-hanzi-hint');
+                    if (engElem) engElem.classList.remove('correct-english');
+                    inputBox.classList.remove('correct-input');
+                }
+                checkAllCorrect();
+            });
+            inputWrapper.appendChild(inputBox);
+            card.appendChild(inputWrapper);
+            vocabGrid.appendChild(card);
+        });
+        document.getElementById('congratsMsg').innerHTML = '';
+        allCorrectFlag = false;
+        if (isTimerRunning) stopTimer();
+        resetTimer(true);
+    }
+
+    function resetPracticeUI() {
+        if (!currentWords.length) return;
+        for (let i = 0; i < currentWords.length; i++) {
+            const inp = document.getElementById(`input-${i}`);
+            if (inp) { inp.value = ''; inp.classList.remove('correct-input'); }
+            const pinyinElem = document.getElementById(`pinyin-${i}`);
+            if (pinyinElem) pinyinElem.classList.remove('correct-pinyin');
+            const hintElem = document.getElementById(`hint-${i}`);
+            if (hintElem) hintElem.classList.remove('correct-hanzi-hint');
+            const engElem = document.getElementById(`eng-${i}`);
+            if (engElem) engElem.classList.remove('correct-english');
+            wordStatus[i] = false;
+        }
+        document.getElementById('congratsMsg').innerHTML = '';
+        allCorrectFlag = false;
+        if (isTimerRunning) stopTimer();
+        resetTimer(true);
+    }
+
+    function startPractice() { resetPracticeUI(); resetTimer(true); startTimer(); }
+    function loadTask(taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+        currentTaskId = task.id;
+        currentWords = task.words.map(w => ({ ...w }));
+        renderPractice();
+        resetPracticeUI();
+        stopTimer();
+        resetTimer(true);
+        isTimerRunning = false;
+        allCorrectFlag = false;
+        renderStudentTaskList();
+    }
+
+    function renderStudentTaskList() {
+        if (!studentTaskListDiv) return;
+        const visibleTasks = tasks.filter(t => !t.hidden);
+        studentTaskListDiv.innerHTML = '';
+        if (visibleTasks.length === 0) {
+            studentTaskListDiv.innerHTML = '<div style="text-align:center; padding:20px;">📭 暂无可用任务，请老师添加</div>';
+            return;
+        }
+        visibleTasks.forEach(task => {
+            const taskDiv = document.createElement('div');
+            taskDiv.className = `task-side-item ${currentTaskId === task.id ? 'active-task' : ''}`;
+            taskDiv.innerHTML = `
+                <div class="task-emoji">📘</div>
+                <div class="task-name-side">${task.name}</div>
+                <div class="task-badge">${task.words.length}</div>
+            `;
+            taskDiv.addEventListener('click', () => { loadTask(task.id); });
+            studentTaskListDiv.appendChild(taskDiv);
+        });
+    }
+
+    function renderTaskList() {
+        taskListContainer.innerHTML = '';
+        tasks.forEach((task, idx) => {
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            const hiddenMark = task.hidden ? '🙈 隐藏中' : '👁️ 可见';
+            div.innerHTML = `
+                <span class="task-name"><span>📌</span> ${task.name} (${task.words.length}) <span style="font-size:0.7rem; margin-left:6px;">${hiddenMark}</span></span>
+                <div class="task-buttons">
+                    <button class="icon-btn" data-action="select" data-id="${task.id}">✅ 选用</button>
+                    <button class="icon-btn" data-action="up" data-id="${task.id}" ${idx===0?'disabled style="opacity:0.5"':''}>⬆️</button>
+                    <button class="icon-btn" data-action="down" data-id="${task.id}" ${idx===tasks.length-1?'disabled style="opacity:0.5"':''}>⬇️</button>
+                    <button class="icon-btn" data-action="edit" data-id="${task.id}">✏️</button>
+                    <button class="icon-btn" data-action="delete" data-id="${task.id}">🗑️</button>
+                </div>
+            `;
+            taskListContainer.appendChild(div);
+        });
+        document.querySelectorAll('[data-action="select"]').forEach(btn => {
+            btn.addEventListener('click', (e) => { loadTask(Number(btn.dataset.id)); taskModal.style.display = 'none'; });
+        });
+        document.querySelectorAll('[data-action="up"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tid = Number(btn.dataset.id);
+                const index = tasks.findIndex(t => t.id === tid);
+                if (index > 0) { [tasks[index-1], tasks[index]] = [tasks[index], tasks[index-1]]; saveTasksToLocal(); renderTaskList(); renderStudentTaskList(); if(currentTaskId===tid) loadTask(tid); }
+            });
+        });
+        document.querySelectorAll('[data-action="down"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tid = Number(btn.dataset.id);
+                const index = tasks.findIndex(t => t.id === tid);
+                if (index !== -1 && index < tasks.length-1) { [tasks[index+1], tasks[index]] = [tasks[index], tasks[index+1]]; saveTasksToLocal(); renderTaskList(); renderStudentTaskList(); if(currentTaskId===tid) loadTask(tid); }
+            });
+        });
+        document.querySelectorAll('[data-action="edit"]').forEach(btn => {
+            btn.addEventListener('click', (e) => { openTaskEditor(Number(btn.dataset.id)); });
+        });
+        document.querySelectorAll('[data-action="delete"]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tid = Number(btn.dataset.id);
+                if(confirm('永久删除该任务？')) {
+                    tasks = tasks.filter(t => t.id !== tid);
+                    if(currentTaskId === tid) {
+                        currentTaskId = tasks.length ? tasks[0]?.id : null;
+                        if(currentTaskId) loadTask(currentTaskId);
+                        else { currentWords = []; renderPractice(); }
+                    }
+                    saveTasksToLocal(); renderTaskList(); renderStudentTaskList();
+                }
+            });
+        });
+    }
+
+    function openTaskEditor(taskId = null) {
+        editingTaskId = taskId;
+        if(taskId === null) {
+            editorTitle.innerText = '✨ 新建任务合集';
+            taskNameInput.value = '';
+            hiddenTaskCheckbox.checked = false;
+            wordsEditorListDiv.innerHTML = '';
+            batchWordsTextarea.value = '';
+        } else {
+            const task = tasks.find(t => t.id === taskId);
+            if(task) {
+                editorTitle.innerText = `✏️ 编辑：${task.name}`;
+                taskNameInput.value = task.name;
+                hiddenTaskCheckbox.checked = !!task.hidden;
+                renderWordEditorList(task.words);
+            }
+        }
+        taskEditorModal.style.display = 'flex';
+    }
+
+    function renderWordEditorList(wordsArray) {
+        wordsEditorListDiv.innerHTML = '';
+        wordsArray.forEach((wordObj, idx) => {
+            const row = document.createElement('div');
+            row.className = 'word-row';
+            row.innerHTML = `
+                <input type="text" placeholder="汉字" value="${escapeHtml(wordObj.hanzi)}" style="flex:1.5;">
+                <input type="text" placeholder="拼音" value="${escapeHtml(wordObj.pinyin)}" style="flex:2;">
+                <input type="text" placeholder="英文" value="${escapeHtml(wordObj.english || '')}" style="flex:1.5;">
+                <button class="icon-btn" data-remove="${idx}">❌</button>
+            `;
+            wordsEditorListDiv.appendChild(row);
+        });
+        const addBtn = document.createElement('button');
+        addBtn.innerText = '+ 添加词汇';
+        addBtn.style.marginTop = '12px';
+        addBtn.style.background = '#C2B280';
+        addBtn.style.border = 'none';
+        addBtn.style.borderRadius = '40px';
+        addBtn.style.padding = '8px';
+        addBtn.style.color = 'white';
+        addBtn.onclick = () => {
+            const cur = getCurrentEditorWords();
+            cur.push({ hanzi: '', pinyin: '', english: '' });
+            renderWordEditorList(cur);
+        };
+        wordsEditorListDiv.appendChild(addBtn);
+        document.querySelectorAll('[data-remove]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.dataset.remove);
+                const cur = getCurrentEditorWords();
+                cur.splice(idx,1);
+                renderWordEditorList(cur);
+            });
+        });
+    }
+
+    function getCurrentEditorWords() {
+        const rows = document.querySelectorAll('#wordsEditorList .word-row');
+        let words = [];
+        rows.forEach(row => {
+            const inputs = row.querySelectorAll('input');
+            if(inputs.length >= 2) {
+                let hanzi = inputs[0].value.trim();
+                let py = inputs[1].value.trim();
+                let eng = inputs[2]?.value.trim() || '';
+                if(hanzi) {
+                    let finalPy = py || (window.pinyinPro ? getPinyinForWord(hanzi) : hanzi);
+                    words.push({ hanzi, pinyin: finalPy, english: eng });
+                }
+            }
+        });
+        return words;
+    }
+
+    function batchGenerateAll() {
+        let raw = batchWordsTextarea.value;
+        let hanziList = raw.split(/[\s,，、\n]+/).filter(s => s.trim().length > 0);
+        let currentWordsArr = getCurrentEditorWords();
+        for(let h of hanziList) {
+            let py = window.pinyinPro ? getPinyinForWord(h) : h;
+            let eng = generateSimpleEnglish(h);
+            currentWordsArr.push({ hanzi: h, pinyin: py, english: eng });
+        }
+        renderWordEditorList(currentWordsArr);
+    }
+
+    function saveCurrentTask() {
+        let taskName = taskNameInput.value.trim();
+        if(!taskName) { alert('请输入任务名称'); return; }
+        let words = getCurrentEditorWords();
+        if(words.length === 0) { alert('至少添加一个词汇'); return; }
+        const hiddenFlag = hiddenTaskCheckbox.checked;
+        if(editingTaskId === null) {
+            const newId = Date.now();
+            tasks.push({ id: newId, name: taskName, hidden: hiddenFlag, words: words });
+        } else {
+            const idx = tasks.findIndex(t => t.id === editingTaskId);
+            if(idx !== -1) tasks[idx] = { ...tasks[idx], name: taskName, hidden: hiddenFlag, words: words };
+        }
+        saveTasksToLocal();
+        if(currentTaskId === null && tasks.length) loadTask(tasks[0].id);
+        else if(editingTaskId === currentTaskId) loadTask(currentTaskId);
+        renderTaskList();
+        renderStudentTaskList();
+        taskEditorModal.style.display = 'none';
+    }
+
+    function saveTasksToLocal() {
+        localStorage.setItem('hanyu_tasks_v3', JSON.stringify(tasks));
+    }
+
+    // 导出词库
+    function exportTasks() {
+        const dataStr = JSON.stringify(tasks, null, 2);
+        const blob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `chinese_tasks_${new Date().toISOString().slice(0,19)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // 导入词库 (覆盖)
+    function importTasks(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (Array.isArray(imported)) {
+                    tasks = imported;
+                    saveTasksToLocal();
+                    if(tasks.length && (!currentTaskId || !tasks.find(t=>t.id===currentTaskId))) {
+                        currentTaskId = tasks[0].id;
+                        loadTask(currentTaskId);
+                    } else if(currentTaskId) {
+                        loadTask(currentTaskId);
+                    } else {
+                        renderPractice();
+                    }
+                    renderTaskList();
+                    renderStudentTaskList();
+                    alert(`成功导入 ${tasks.length} 个任务合集`);
+                } else {
+                    alert('文件格式错误：需要任务数组');
+                }
+            } catch(err) { alert('解析失败，请确保是有效的JSON文件'); }
+        };
+        reader.readAsText(file);
+    }
+
+    // 预设四个主题任务 (动物9个，水果9个，日常生活12个，数字1-10)
+    function getDefaultTasks() {
+        return [
+            { id: 1001, name: '🐾 可爱动物 (9词)', hidden: false, words: [
+                { hanzi: '熊猫', pinyin: 'xióng māo', english: 'panda' }, { hanzi: '老虎', pinyin: 'lǎo hǔ', english: 'tiger' },
+                { hanzi: '狮子', pinyin: 'shī zi', english: 'lion' }, { hanzi: '兔子', pinyin: 'tù zi', english: 'rabbit' },
+                { hanzi: '大象', pinyin: 'dà xiàng', english: 'elephant' }, { hanzi: '长颈鹿', pinyin: 'cháng jǐng lù', english: 'giraffe' },
+                { hanzi: '猴子', pinyin: 'hóu zi', english: 'monkey' }, { hanzi: '猫', pinyin: 'māo', english: 'cat' },
+                { hanzi: '狗', pinyin: 'gǒu', english: 'dog' }
+            ] },
+            { id: 1002, name: '🍎 缤纷水果 (9词)', hidden: false, words: [
+                { hanzi: '苹果', pinyin: 'píng guǒ', english: 'apple' }, { hanzi: '香蕉', pinyin: 'xiāng jiāo', english: 'banana' },
+                { hanzi: '草莓', pinyin: 'cǎo méi', english: 'strawberry' }, { hanzi: '橙子', pinyin: 'chéng zi', english: 'orange' },
+                { hanzi: '葡萄', pinyin: 'pú tao', english: 'grape' }, { hanzi: '西瓜', pinyin: 'xī guā', english: 'watermelon' },
+                { hanzi: '芒果', pinyin: 'máng guǒ', english: 'mango' }, { hanzi: '桃子', pinyin: 'táo zi', english: 'peach' },
+                { hanzi: '樱桃', pinyin: 'yīng táo', english: 'cherry' }
+            ] },
+            { id: 1003, name: '🏠 日常生活 (12词)', hidden: false, words: [
+                { hanzi: '吃饭', pinyin: 'chī fàn', english: 'eat' }, { hanzi: '喝水', pinyin: 'hē shuǐ', english: 'drink' },
+                { hanzi: '睡觉', pinyin: 'shuì jiào', english: 'sleep' }, { hanzi: '走路', pinyin: 'zǒu lù', english: 'walk' },
+                { hanzi: '跑步', pinyin: 'pǎo bù', english: 'run' }, { hanzi: '读书', pinyin: 'dú shū', english: 'read' },
+                { hanzi: '写字', pinyin: 'xiě zì', english: 'write' }, { hanzi: '听音乐', pinyin: 'tīng yīn yuè', english: 'listen to music' },
+                { hanzi: '看电视', pinyin: 'kàn diàn shì', english: 'watch TV' }, { hanzi: '早上', pinyin: 'zǎo shang', english: 'morning' },
+                { hanzi: '今天', pinyin: 'jīn tiān', english: 'today' }, { hanzi: '快乐', pinyin: 'kuài lè', english: 'happy' }
+            ] },
+            { id: 1004, name: '🔢 数字乐园 (1-10)', hidden: false, words: [
+                { hanzi: '一', pinyin: 'yī', english: 'one' }, { hanzi: '二', pinyin: 'èr', english: 'two' },
+                { hanzi: '三', pinyin: 'sān', english: 'three' }, { hanzi: '四', pinyin: 'sì', english: 'four' },
+                { hanzi: '五', pinyin: 'wǔ', english: 'five' }, { hanzi: '六', pinyin: 'liù', english: 'six' },
+                { hanzi: '七', pinyin: 'qī', english: 'seven' }, { hanzi: '八', pinyin: 'bā', english: 'eight' },
+                { hanzi: '九', pinyin: 'jiǔ', english: 'nine' }, { hanzi: '十', pinyin: 'shí', english: 'ten' }
+            ] }
+        ];
+    }
+
+    function loadInitialTasks() {
+        const stored = localStorage.getItem('hanyu_tasks_v3');
+        if(stored) {
+            tasks = JSON.parse(stored);
+        } else {
+            tasks = getDefaultTasks();
+        }
+        if(tasks.length) { currentTaskId = tasks.find(t => !t.hidden)?.id || tasks[0].id; loadTask(currentTaskId); }
+        else renderPractice();
+        renderTaskList();
+        renderStudentTaskList();
+    }
+
+    function escapeHtml(str) { return str; }
+
+    // 事件绑定
+    difficultySelect.addEventListener('change', () => { if(currentTaskId) renderPractice(); resetPracticeUI(); stopTimer(); resetTimer(true); isTimerRunning=false; });
+    startBtn.addEventListener('click', startPractice);
+    restartBtn.addEventListener('click', () => { resetPracticeUI(); stopTimer(); resetTimer(true); startTimer(); });
+    taskManagerBtn.addEventListener('click', () => { renderTaskList(); taskModal.style.display = 'flex'; });
+    closeModalBtn.addEventListener('click', () => taskModal.style.display = 'none');
+    closeEditorBtn.addEventListener('click', () => taskEditorModal.style.display = 'none');
+    cancelEditBtn.addEventListener('click', () => taskEditorModal.style.display = 'none');
+    saveTaskBtn.addEventListener('click', saveCurrentTask);
+    batchGenerateBtn.addEventListener('click', batchGenerateAll);
+    openAddTaskEditor.addEventListener('click', () => openTaskEditor(null));
+    exportDataBtn.addEventListener('click', exportTasks);
+    importFileInput.addEventListener('change', (e) => { if(e.target.files.length) importTasks(e.target.files[0]); e.target.value = ''; });
+    window.onclick = (e) => { if(e.target === taskModal) taskModal.style.display='none'; if(e.target === taskEditorModal) taskEditorModal.style.display='none'; };
+
+    loadInitialTasks();
+</script>
+</body>
+</html>
