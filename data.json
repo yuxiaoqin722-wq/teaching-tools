@@ -11,12 +11,12 @@
   },
   {
     "title": "熊猫词语卡点练习",
-    "author": "sunhao",
     "path": "tools/xiongmaociyukadian.html",
     "cover": "assets/xiongmaociyukadian.png",
     "tags": [
-      "词语， 游戏"
-    ]
+      "词语"
+    ],
+    "author": "sunhao"
   },
   {
     "title": "倒计时插件",
