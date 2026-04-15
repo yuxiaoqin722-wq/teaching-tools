@@ -6,7 +6,8 @@
     "cover": "assets/caihongzi.png",
     "tags": [
       "汉字"
-    ]
+    ],
+    "hidden": true
   },
   {
     "title": "熊猫词语卡点练习",
@@ -24,7 +25,8 @@
     "cover": "assets/倒计时插件.png",
     "tags": [
       "倒计时"
-    ]
+    ],
+    "hidden": true
   },
   {
     "title": "阿联酋中学生爱好对话教学动画",
@@ -33,6 +35,7 @@
     "cover": "assets/阿联酋中学生爱好对话教学动画.png",
     "tags": [
       "对话"
-    ]
+    ],
+    "hidden": true
   }
 ]
