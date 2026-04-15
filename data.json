@@ -16,7 +16,8 @@
     "tags": [
       "词语"
     ],
-    "author": "sunhao"
+    "author": "sunhao",
+    "hidden": true
   },
   {
     "title": "倒计时插件",
@@ -54,6 +55,15 @@
     "cover": "assets/2taskxiaoxiaole.png",
     "tags": [
       "课堂管理"
+    ],
+    "author": "xiaoqin"
+  },
+  {
+    "title": "汉字打打乐",
+    "path": "tools/hanzidadale.html",
+    "cover": "assets/hanzidadale.png",
+    "tags": [
+      "汉字"
     ],
     "author": "xiaoqin"
   }
