@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>青绿山水·翰林词库 | 对外汉语跟读系统</title>
+    <!-- 拼音库 pinyin-pro -->
+    <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #d9e4c6 0%, #b7cf9e 100%);
+            font-family: 'Segoe UI', '华文楷书', 'Microsoft YaHei', 'PingFang SC', 'SimHei', serif;
+            padding: 30px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1200" opacity="0.12"><path fill="none" stroke="%233b5e2b" stroke-width="1.2" d="M0,300 L150,280 L220,310 L340,260 L450,290 L580,240 L700,270 L800,250 M0,500 L120,530 L200,490 L330,550 L500,510 L620,560 L750,520 L800,540 M0,700 L180,680 L260,730 L400,690 L520,740 L650,700 L780,750 M0,900 L90,920 L210,880 L340,940 L480,900 L610,950 L730,910 L800,930"/><path d="M520 200 L550 170 L590 195 L630 165 L680 190 L720 150" stroke="%233b5e2b" fill="none" stroke-width="1.5"/><circle cx="120" cy="150" r="18" fill="%234c7a34" opacity="0.3"/><circle cx="680" cy="100" r="26" fill="%234c7a34" opacity="0.2"/></svg>');
+            background-repeat: repeat;
+            background-size: 280px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 2;
+            width: 98%;
+            max-width: 1600px;
+            background: rgba(245, 245, 225, 0.85);
+            backdrop-filter: blur(3px);
+            border-radius: 56px 56px 64px 64px;
+            box-shadow: 0 25px 45px rgba(40, 30, 10, 0.35), inset 0 1px 4px rgba(255, 255, 200, 0.8);
+            border: 1px solid #cfdeb4;
+            overflow: hidden;
+            margin: auto;
+        }
+
+        .header-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 28px 36px 0 36px;
+        }
+        .app-title {
+            background: rgba(210, 195, 150, 0.5);
+            backdrop-filter: blur(6px);
+            padding: 8px 22px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2f4f2f;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            border: 1px solid #dae6bc;
+            font-family: '华文楷书', 'Segoe UI', cursive;
+            letter-spacing: 2px;
+        }
+        .btn-mountain {
+            background: rgba(95, 125, 70, 0.6);
+            border: none;
+            backdrop-filter: blur(6px);
+            padding: 8px 24px;
+            border-radius: 60px;
+            color: #fef7e0;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: 0.2s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #c5e0b4;
+        }
+        .btn-mountain:hover {
+            background: rgba(75, 100, 55, 0.8);
+            transform: scale(0.97);
+        }
+        .fullscreen-btn {
+            background: rgba(95, 125, 70, 0.5);
+            border: none;
+            backdrop-filter: blur(6px);
+            padding: 8px 20px;
+            border-radius: 60px;
+            color: #fef7e0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-right: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+        .fullscreen-btn:hover {
+            background: rgba(75, 100, 55, 0.7);
+        }
+
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 25px 36px 40px 36px;
+            gap: 20px;
+        }
+
+        .list-sidebar {
+            flex: 0 0 200px;
+            background: rgba(215, 225, 185, 0.5);
+            border-radius: 40px;
+            padding: 16px 12px;
+            backdrop-filter: blur(4px);
+            box-shadow: inset 0 0 0 1px #eef3da, 0 4px 12px rgba(0,0,0,0.1);
+            height: fit-content;
+            max-height: 550px;
+            overflow-y: auto;
+        }
+
+        .list-sidebar h4 {
+            text-align: center;
+            color: #2c4b1e;
+            border-bottom: 1px solid #8aa96e;
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 16px;
+            font-size: 1rem;
+            font-weight: normal;
+        }
+
+        .list-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .list-btn {
+            background: #e8efda;
+            border: 1px solid #a2bc83;
+            border-radius: 32px;
+            padding: 8px 12px;
+            text-align: center;
+            font-weight: normal;
+            color: #2c4722;
+            cursor: pointer;
+            transition: 0.1s;
+            font-size: 0.85rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .list-btn.active {
+            background: #527a3b;
+            color: #fff7e8;
+            border-color: #f5e2b0;
+            box-shadow: 0 0 0 2px #f9eec1;
+        }
+
+        .list-btn:hover:not(.active) {
+            background: #cdddae;
+            transform: translateX(4px);
+        }
+
+        .card-area {
+            flex: 4;
+            min-width: 400px;
+            background: #fffef7e0;
+            backdrop-filter: blur(6px);
+            border-radius: 60px;
+            padding: 20px 28px 28px;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+            border: 1px solid #ebf5d6;
+        }
+
+        .progress-section {
+            margin-bottom: 18px;
+        }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #3c5e2b;
+            font-weight: normal;
+            margin-bottom: 4px;
+        }
+        .progress-bar-bg {
+            background-color: #cfddb0;
+            border-radius: 20px;
+            height: 8px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #7d9f4e;
+            width: 0%;
+            height: 100%;
+            border-radius: 20px;
+            transition: width 0.2s ease;
+        }
+
+        .word-card {
+            background: #fffcf0;
+            border-radius: 72px;
+            padding: 40px 20px 50px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(60, 40, 10, 0.15);
+            margin: 15px 0 25px;
+            border: 1px solid #e2ecc2;
+        }
+        .pinyin {
+            font-size: 1.8rem;
+            color: #6f6f5e;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+        .chinese {
+            font-size: 5rem;
+            font-weight: 800;
+            color: #1d2e12;
+            line-height: 1.2;
+            margin-bottom: 30px;
+        }
+        .english {
+            font-size: 1.5rem;
+            color: #5b5b49;
+            font-weight: normal;
+            margin-top: 8px;
+        }
+        .hide-display {
+            display: none;
+        }
+
+        .card-controls {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .ctrl-btn {
+            background: #e6e2ca;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: normal;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.1s;
+            color: #3c4f2a;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ctrl-btn-primary {
+            background: #547a3a;
+            color: white;
+        }
+        .ctrl-btn-primary:hover {
+            background: #2f5a1f;
+        }
+        .ctrl-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .quick-settings {
+            flex: 0 0 220px;
+            background: rgba(220, 210, 170, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 40px;
+            padding: 18px 16px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+        }
+        .setting-item {
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+        }
+        .setting-label {
+            font-weight: normal;
+            color: #2d4a1c;
+            font-size: 0.8rem;
+        }
+        .switch {
+            width: 40px;
+            height: 22px;
+            background: #b9b28a;
+            border-radius: 30px;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .switch.active {
+            background: #638a41;
+        }
+        .switch span {
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            transition: 0.2s;
+        }
+        .switch.active span {
+            left: 19px;
+        }
+        .num-input, .select-style {
+            width: 70px;
+            background: #fff7e8;
+            border: 1px solid #bbaa7f;
+            border-radius: 24px;
+            padding: 4px 6px;
+            text-align: center;
+            font-size: 0.75rem;
+        }
+        .small-btn {
+            background: #ccd6aa;
+            border: none;
+            border-radius: 24px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+
+        .batch-import {
+            background: #f0efdf;
+            border-radius: 32px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px dashed #a2bc83;
+        }
+        .batch-import textarea {
+            width: 100%;
+            border-radius: 24px;
+            border: 1px solid #c6bc8b;
+            padding: 10px;
+            font-size: 0.85rem;
+            background: #fffcf0;
+            resize: vertical;
+        }
+        .batch-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .data-tools {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+            justify-content: flex-end;
+            border-top: 1px solid #c6bc8b;
+            padding-top: 15px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(30, 30, 15, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #fdf8ea;
+            border-radius: 56px;
+            width: 90%;
+            max-width: 1100px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 28px;
+            border: 3px solid #bcda8b;
+            box-shadow: 0 20px 35px black;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        .word-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .word-table th, .word-table td {
+            border: 1px solid #c6bc8b;
+            padding: 8px;
+            vertical-align: middle;
+        }
+        .input-chinese, .input-pinyin, .input-english {
+            width: 120px;
+            padding: 4px;
+            font-size: 0.85rem;
+        }
+        button.icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .move-buttons {
+            display: inline-flex;
+            gap: 6px;
+            margin-left: 10px;
+        }
+        @media (max-width: 1000px) {
+            body { padding: 20px; }
+            .dashboard { flex-direction: column; }
+            .list-sidebar { flex: auto; max-height: 180px; }
+            .quick-settings { flex: auto; }
+            .word-card { padding: 30px 15px; }
+            .chinese { font-size: 3rem; }
+            .english { font-size: 1.2rem; }
+            .pinyin { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <div class="header-area">
+        <div class="app-title"><i class="fas fa-book-open"></i> 词语跟读系统</div>
+        <div style="display: flex; gap: 12px;">
+            <button class="fullscreen-btn" id="fullscreenBtn"><i class="fas fa-expand"></i> 全屏</button>
+            <button class="btn-mountain" id="wordManageBtn"><i class="fas fa-folder-open"></i> 单词管理 · 词库</button>
+        </div>
+    </div>
+    <div class="dashboard">
+        <div class="list-sidebar">
+            <h4><i class="fas fa-layer-group"></i> 翰林书卷</h4>
+            <div id="listButtonsContainer" class="list-btn-group"></div>
+        </div>
+
+        <div class="card-area">
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span>📖 学习进度</span>
+                    <span id="progressCounter">0 / 0</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-fill" id="progressFill"></div></div>
+            </div>
+            <div class="word-card" id="wordCard">
+                <div class="pinyin" id="pinyinText">pīn yīn</div>
+                <div class="chinese" id="chineseText">汉字</div>
+                <div class="english" id="englishText">English</div>
+            </div>
+            <div class="card-controls">
+                <button class="ctrl-btn" id="prevBtn"><i class="fas fa-arrow-left"></i> 上一个</button>
+                <button class="ctrl-btn" id="resetProgressBtn"><i class="fas fa-undo-alt"></i> 重置</button>
+                <button class="ctrl-btn ctrl-btn-primary" id="startReadBtn"><i class="fas fa-play"></i> 开始</button>
+                <button class="ctrl-btn" id="nextBtn"><i class="fas fa-arrow-right"></i> 下一个</button>
+            </div>
+        </div>
+
+        <div class="quick-settings">
+            <div class="setting-item"><span class="setting-label"><i class="fas fa-language"></i> 显示中文</span><div id="showChineseToggle" class="switch active"><span></span></div></div>
+            <div class="setting-item"><span class="setting-label"><i class="fas fa-font"></i> 显示英文</span><div id="showEnglishToggle" class="switch active"><span></span></div></div>
+            <div class="setting-item"><span class="setting-label"><i class="fas fa-repeat"></i> 朗读次数</span><input type="number" id="repeatTimes" min="1" max="5" value="1" class="num-input"></div>
+            <div class="setting-item"><span class="setting-label"><i class="fas fa-hourglass-half"></i> 间隔(秒)</span><input type="number" id="intervalSec" min="0.5" step="0.1" value="0.8" class="num-input"></div>
+            <div class="setting-item"><span class="setting-label"><i class="fas fa-exchange-alt"></i> 自动切换</span><div id="autoSwitchToggle" class="switch active"><span></span></div></div>
+            <div class="setting-item"><span class="setting-label"><i class="fas fa-music"></i> 音色选择</span><button id="voiceSelectBtn" class="small-btn"><i class="fas fa-user-astronaut"></i> 音色</button></div>
+            <div class="setting-item"><span class="setting-label"><i class="fas fa-tachometer-alt"></i> 设置语速</span><button id="rateSelectBtn" class="small-btn"><i class="fas fa-sliders-h"></i> 语速</button></div>
+            <div class="setting-item"><span class="setting-label"><i class="fas fa-random"></i> 随机单词</span><div id="randomToggle" class="switch"><span></span></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- 单词管理弹窗 -->
+<div id="wordManagerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header"><span>📚 词库管理</span><button id="closeModalBtn" class="icon-btn"><i class="fas fa-times"></i></button></div>
+        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <button id="newListBtn" class="small-btn"><i class="fas fa-plus"></i> 新建List</button> 
+            <span>当前List:</span>
+            <select id="listSelect" style="padding:4px;border-radius:24px;"></select>
+            <div class="move-buttons">
+                <button id="moveListUpBtn" class="icon-btn" title="上移词库"><i class="fas fa-arrow-up"></i></button>
+                <button id="moveListDownBtn" class="icon-btn" title="下移词库"><i class="fas fa-arrow-down"></i></button>
+            </div>
+            <button id="editListNameBtn" class="icon-btn"><i class="fas fa-edit"></i></button>
+            <button id="deleteListBtn" class="icon-btn"><i class="fas fa-trash"></i></button>
+        </div>
+
+        <!-- 批量导入区域 -->
+        <div class="batch-import">
+            <div style="font-size:0.85rem; margin-bottom:6px;"><i class="fas fa-paste"></i> 批量粘贴词语（每行一个，或用空格/逗号分隔）</div>
+            <textarea id="batchWordsInput" rows="3" placeholder="例如：&#10;苹果&#10;老师&#10;中国,北京,你好"></textarea>
+            <div class="batch-buttons">
+                <button id="batchImportBtn" class="small-btn"><i class="fas fa-upload"></i> 导入并生成</button>
+                <button id="clearBatchBtn" class="small-btn">清空</button>
+            </div>
+        </div>
+
+        <div id="wordTableContainer" style="margin-top: 18px;">
+            <table class="word-table" id="wordEditTable"><thead><tr><th>中文(必填)</th><th>拼音(可编辑)</th><th>英文(可编辑)</th><th style="width:60px">操作</th></thead><tbody id="wordTbody"></tbody></table>
+            <button id="addWordRowBtn" class="small-btn" style="margin-top:12px;"><i class="fas fa-plus-circle"></i> 添加单词</button>
+        </div>
+        
+        <!-- 数据备份与恢复工具 -->
+        <div class="data-tools">
+            <button id="exportDataBtn" class="small-btn"><i class="fas fa-download"></i> 导出数据</button>
+            <label for="importFileInput" class="small-btn" style="cursor:pointer;"><i class="fas fa-upload"></i> 导入数据</label>
+            <input type="file" id="importFileInput" accept=".json" style="display:none;">
+        </div>
+        
+        <div style="margin-top: 20px; text-align: right;"><button id="saveSettingsBtn" class="ctrl-btn-primary ctrl-btn">保存设置并退出</button></div>
+    </div>
+</div>
+
+<!-- 音色选择弹窗 -->
+<div id="voiceModal" class="modal"><div class="modal-content"><h3>🎤 选择朗读音色</h3><select id="voiceSelect" style="width:100%;padding:8px;"></select><button id="saveVoiceBtn" class="ctrl-btn-primary" style="margin-top:20px">保存设置</button><button id="closeVoiceBtn" class="small-btn" style="margin-left:12px;">取消</button></div></div>
+<!-- 语速弹窗 -->
+<div id="rateModal" class="modal"><div class="modal-content"><h3>⚙️ 设置语速 (0.5~2)</h3><input type="range" id="rateSlider" min="0.5" max="2" step="0.05" value="1"><span id="rateValue">1.0</span><br><button id="saveRateBtn" class="ctrl-btn-primary">保存语速</button></div></div>
+
+<script>
+    // ------------------- 全局数据 -------------------
+    let lists = [];          
+    let currentListId = null;
+    let currentOrderIndex = 0;
+    let currentSequence = [];
+    let randomMode = false;            
+    let isReading = false;
+    let readingTimer = null;
+    let repeatTimes = 1;
+    let intervalSec = 0.8;
+    let autoSwitch = true;
+    let speechRate = 1.0;
+    let selectedVoiceURI = null;
+    let availableVoices = [];
+    let showChinese = true;
+    let showEnglish = true;
+
+    // 高质量本地英文词典
+    const localEnglishDict = {
+        "四":"four","五":"five","六":"six","七":"seven","八":"eight","九":"nine","十":"ten",
+        "人":"person","我":"I","他":"he","她":"she","叫":"to be called","岁":"years old",
+        "年":"year","月":"month","日":"day","这":"this","那":"that","有":"to have","和":"and",
+        "点":"o'clock","半":"half","爱":"to love","看":"to see","听":"to listen","说":"to speak",
+        "写":"to write","吃":"to eat","喝":"to drink","唱":"to sing","大":"big","小":"small",
+        "冷":"cold","热":"hot","春":"spring","夏":"summer","秋":"autumn","冬":"winter",
+        "谁":"who","几":"how many","也":"also","都":"all","水":"water","茶":"tea","忙":"busy",
+        "想":"to think","累":"tired","会":"can","两":"two","不":"no",
+        "你好":"hello","再见":"goodbye","谢谢":"thank you","老师":"teacher","名字":"name",
+        "认识":"to know","高兴":"happy","中国":"China","阿联酋":"UAE","中文":"Chinese",
+        "什么":"what","国家":"country","汉语":"Chinese language","晴天":"sunny","下雨":"rainy","下雪":"snowy",
+        "星期":"week","今天":"today","上课":"attend class","上学":"go to school","回家":"go home",
+        "爸爸":"dad","妈妈":"mom","爷爷":"grandpa","奶奶":"grandma","哥哥":"older brother",
+        "姐姐":"older sister","妹妹":"younger sister","现在":"now","上午":"morning","中午":"noon",
+        "下午":"afternoon","晚上":"evening","学生":"student","学习":"study","学校":"school",
+        "工作":"work","起床":"get up","睡觉":"sleep","喜欢":"like","每天":"every day",
+        "唱歌":"sing","熊猫":"panda","音乐":"music","朋友":"friend","生日":"birthday",
+        "快乐":"happy","礼物":"gift","多少":"how many","爱好":"hobby"
+    };
+    
+    function getEnglishFromLocal(chinese) {
+        if(localEnglishDict[chinese]) return localEnglishDict[chinese];
+        if(chinese === "下雪") return "snowy";
+        if(chinese === "下雨") return "rainy";
+        if(chinese === "唱歌") return "sing";
+        return "";
+    }
+    
+    function saveData() { localStorage.setItem('qinglvVocab', JSON.stringify({lists, currentListId, speechRate, selectedVoiceURI })); }
+    
+    function getCurrentDisplayWord() {
+        let list = lists.find(l=>l.id==currentListId);
+        if(!list || list.words.length===0) return null;
+        if(currentSequence.length === 0) return null;
+        if(currentOrderIndex >= currentSequence.length) {
+            let lastIdx = currentSequence[currentSequence.length-1];
+            return list.words[lastIdx];
+        } else {
+            let idx = currentSequence[currentOrderIndex];
+            return list.words[idx];
+        }
+    }
+    
+    function getCurrentWordForSpeech() {
+        let list = lists.find(l=>l.id==currentListId);
+        if(!list || list.words.length===0) return null;
+        if(currentSequence.length === 0) return null;
+        if(currentOrderIndex >= currentSequence.length) return null;
+        let idx = currentSequence[currentOrderIndex];
+        return list.words[idx];
+    }
+    
+    function updateCardByIndex() {
+        let word = getCurrentDisplayWord();
+        if(word) {
+            document.getElementById('pinyinText').innerText = word.pinyin || '';
+            document.getElementById('chineseText').innerText = word.chinese || '';
+            document.getElementById('englishText').innerText = word.english || '';
+            document.getElementById('chineseText').classList.toggle('hide-display', !showChinese);
+            document.getElementById('englishText').classList.toggle('hide-display', !showEnglish);
+        } else {
+            document.getElementById('chineseText').innerText = '无词语';
+            document.getElementById('pinyinText').innerText = '请添加单词';
+            document.getElementById('englishText').innerText = '';
+        }
+        updateProgressUI();
+    }
+    
+    function updateProgressUI() {
+        let list = lists.find(l=>l.id==currentListId);
+        if(!list || list.words.length===0) { 
+            document.getElementById('progressCounter').innerText='0/0'; 
+            document.getElementById('progressFill').style.width='0%'; 
+            return; 
+        }
+        let total = currentSequence.length;
+        let completed = Math.min(currentOrderIndex, total);
+        let remain = total - completed;
+        document.getElementById('progressCounter').innerHTML = `${completed} / ${total} (剩${remain})`;
+        let percent = total===0 ? 0 : (completed/total*100);
+        document.getElementById('progressFill').style.width = percent+'%';
+    }
+    
+    function rebuildSequenceAndIndex(resetProgress=true) {
+        if(!currentListId) return;
+        let list = lists.find(l=>l.id==currentListId);
+        if(!list) return;
+        let total = list.words.length;
+        if(randomMode) {
+            let indices = Array.from({length: total}, (_,i)=>i);
+            for(let i=indices.length-1;i>0;i--){ let j=Math.floor(Math.random()*(i+1)); [indices[i],indices[j]]=[indices[j],indices[i]]; }
+            currentSequence = indices;
+        } else {
+            currentSequence = Array.from({length: total}, (_,i)=>i);
+        }
+        if(resetProgress) currentOrderIndex = 0;
+        updateCardByIndex();
+        updateProgressUI();
+    }
+    
+    function resetProgress() {
+        if(!currentListId) return;
+        let list = lists.find(l=>l.id==currentListId);
+        if(!list) return;
+        rebuildSequenceAndIndex(true);
+        if(isReading) stopReading();
+    }
+    
+    function moveToNextWord() {
+        if(currentOrderIndex + 1 <= currentSequence.length) {
+            currentOrderIndex++;
+            updateCardByIndex();
+            return currentOrderIndex < currentSequence.length;
+        }
+        return false;
+    }
+    
+    // 流畅朗读队列引擎
+    let speechQueue = [];
+    let isProcessingQueue = false;
+    
+    function flushSpeechQueue() {
+        if(isProcessingQueue) return;
+        if(speechQueue.length === 0) return;
+        isProcessingQueue = true;
+        const next = speechQueue.shift();
+        if(window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+        setTimeout(() => {
+            const utter = new SpeechSynthesisUtterance(next.text);
+            utter.lang = 'zh-CN';
+            utter.rate = next.rate;
+            if(selectedVoiceURI) {
+                let voice = availableVoices.find(v=>v.voiceURI===selectedVoiceURI);
+                if(voice) utter.voice = voice;
+            }
+            utter.onend = () => {
+                isProcessingQueue = false;
+                if(next.callback) next.callback();
+                if(speechQueue.length > 0) flushSpeechQueue();
+            };
+            utter.onerror = () => {
+                isProcessingQueue = false;
+                if(next.callback) next.callback();
+                if(speechQueue.length > 0) flushSpeechQueue();
+            };
+            window.speechSynthesis.speak(utter);
+        }, 30);
+    }
+    
+    function speakWordSmooth(wordChinese, onComplete) {
+        if(!wordChinese) { if(onComplete) onComplete(); return; }
+        speechQueue.push({
+            text: wordChinese,
+            rate: speechRate,
+            callback: onComplete
+        });
+        flushSpeechQueue();
+    }
+    
+    function stopReading() {
+        if(readingTimer) clearTimeout(readingTimer);
+        isReading = false;
+        speechQueue = [];
+        if(window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+        isProcessingQueue = false;
+    }
+    
+    function readCurrentWordWithRetries(callbackAfterWordDone) {
+        let wordObj = getCurrentWordForSpeech();
+        if(!wordObj) { if(callbackAfterWordDone) callbackAfterWordDone(); return; }
+        let timesLeft = repeatTimes;
+        let wordChinese = wordObj.chinese;
+        
+        function speakOneTime() {
+            if(!isReading) return;
+            speakWordSmooth(wordChinese, () => {
+                if(!isReading) return;
+                timesLeft--;
+                if(timesLeft > 0) {
+                    readingTimer = setTimeout(() => {
+                        if(isReading) speakOneTime();
+                    }, intervalSec * 1000);
+                } else {
+                    if(callbackAfterWordDone) callbackAfterWordDone();
+                }
+            });
+        }
+        speakOneTime();
+    }
+    
+    function startReadList() {
+        if(isReading) stopReading();
+        let list = lists.find(l=>l.id==currentListId);
+        if(!list || list.words.length===0) return;
+        if(currentOrderIndex >= currentSequence.length) {
+            resetProgress();
+        }
+        isReading = true;
+        
+        function readStep() {
+            if(!isReading) return;
+            if(currentOrderIndex >= currentSequence.length) {
+                stopReading();
+                updateProgressUI();
+                return;
+            }
+            readCurrentWordWithRetries(() => {
+                if(!isReading) return;
+                if(autoSwitch) {
+                    let hasNext = moveToNextWord();
+                    if(hasNext) {
+                        readStep();
+                    } else {
+                        stopReading();
+                        updateProgressUI();
+                    }
+                } else {
+                    stopReading();
+                }
+            });
+        }
+        readStep();
+    }
+    
+    function nextWordInternal() {
+        if(isReading) stopReading();
+        if(moveToNextWord()) {
+            let w = getCurrentWordForSpeech();
+            if(w) speakWordSmooth(w.chinese, null);
+        } else {
+            let w = getCurrentDisplayWord();
+            if(w) speakWordSmooth(w.chinese, null);
+        }
+        updateProgressUI();
+    }
+    
+    function prevWordInternal() {
+        if(isReading) stopReading();
+        if(currentOrderIndex > 0) {
+            currentOrderIndex--;
+            updateCardByIndex();
+            let w = getCurrentWordForSpeech();
+            if(w) speakWordSmooth(w.chinese, null);
+        } else {
+            let w = getCurrentDisplayWord();
+            if(w) speakWordSmooth(w.chinese, null);
+        }
+        updateProgressUI();
+    }
+    
+    function switchList(id) {
+        if(isReading) stopReading();
+        currentListId = id;
+        rebuildSequenceAndIndex(true);
+        renderListButtons();
+        saveData();
+    }
+    
+    function renderListButtons() {
+        let container = document.getElementById('listButtonsContainer');
+        container.innerHTML='';
+        lists.forEach(list=>{
+            let btn = document.createElement('div'); 
+            btn.className='list-btn'+(currentListId===list.id?' active':'');
+            btn.innerText = list.name;
+            btn.onclick=()=>{ switchList(list.id); };
+            container.appendChild(btn);
+        });
+    }
+    
+    // ================= 数据导入导出功能 =================
+    function exportData() {
+        const exportObj = {
+            lists: lists,
+            currentListId: currentListId,
+            speechRate: speechRate,
+            selectedVoiceURI: selectedVoiceURI,
+            version: "1.0"
+        };
+        const dataStr = JSON.stringify(exportObj, null, 2);
+        const blob = new Blob([dataStr], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `vocab_backup_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+    
+    function importData(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if(imported.lists && Array.isArray(imported.lists)) {
+                    lists = imported.lists;
+                    currentListId = imported.currentListId || (lists[0]?.id || null);
+                    speechRate = imported.speechRate ?? 1.0;
+                    selectedVoiceURI = imported.selectedVoiceURI || null;
+                    // 重建当前顺序
+                    rebuildSequenceAndIndex(true);
+                    renderListButtons();
+                    updateCardByIndex();
+                    saveData();
+                    alert("数据导入成功！请关闭弹窗后查看。");
+                    // 刷新单词管理界面
+                    if(currentEditListId) loadWordsToTable(currentEditListId);
+                } else {
+                    alert("文件格式不正确，请确保是导出的备份文件。");
+                }
+            } catch(err) {
+                alert("解析失败，文件损坏或格式错误。");
+            }
+        };
+        reader.readAsText(file);
+    }
+    
+    // ================= 批量导入功能 =================
+    function parseBatchWords(rawText) {
+        let lines = rawText.split(/\r?\n/);
+        let wordsSet = new Set();
+        for(let line of lines) {
+            line = line.trim();
+            if(line === "") continue;
+            let parts = line.split(/[,，\s]+/);
+            for(let part of parts) {
+                part = part.trim();
+                if(part !== "") wordsSet.add(part);
+            }
+        }
+        return Array.from(wordsSet);
+    }
+    
+    async function batchAddWords(wordArray, listId) {
+        let list = lists.find(l=>l.id==listId);
+        if(!list) return;
+        for(let ch of wordArray) {
+            if(!ch) continue;
+            let exists = list.words.some(w => w.chinese === ch);
+            if(exists) continue;
+            let py = '';
+            try { py = window.pinyinPro ? window.pinyinPro.pinyin(ch, { toneType:'symbol', separator:' ' }) : ch; } catch(e) { py = ch; }
+            let en = getEnglishFromLocal(ch);
+            if(!en) {
+                en = '';
+                (async () => {
+                    try {
+                        let res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(ch)}&langpair=zh|en`);
+                        let data = await res.json();
+                        let translated = data?.responseData?.translatedText || ch;
+                        let wordObj = list.words.find(w => w.chinese === ch);
+                        if(wordObj) {
+                            wordObj.english = translated;
+                            if(currentEditListId === listId) loadWordsToTable(listId);
+                            saveData();
+                        }
+                    } catch(e) {}
+                })();
+            }
+            list.words.push({ chinese: ch, pinyin: py, english: en });
+        }
+        if(currentEditListId === listId) loadWordsToTable(listId);
+        saveData();
+    }
+    
+    // ================= 单词管理弹窗其他逻辑 =================
+    let currentEditListId = null;
+    function openWordManager() {
+        currentEditListId = currentListId;
+        renderManagerUI();
+        document.getElementById('wordManagerModal').style.display='flex';
+    }
+    
+    function renderManagerUI() {
+        let select = document.getElementById('listSelect');
+        select.innerHTML='';
+        lists.forEach((l, idx) => { 
+            let op = document.createElement('option'); 
+            op.value=l.id; 
+            op.innerText=l.name;
+            if(currentEditListId === l.id) op.selected = true;
+            select.appendChild(op); 
+        });
+        if(currentEditListId && lists.find(l=>l.id==currentEditListId)) {
+            loadWordsToTable(currentEditListId);
+        } else if(lists.length) {
+            currentEditListId = lists[0].id;
+            loadWordsToTable(currentEditListId);
+        }
+        select.onchange=()=>{ 
+            currentEditListId = parseInt(select.value); 
+            loadWordsToTable(currentEditListId); 
+        };
+    }
+    
+    function moveListUp() {
+        let idx = lists.findIndex(l => l.id === currentEditListId);
+        if(idx > 0) {
+            [lists[idx-1], lists[idx]] = [lists[idx], lists[idx-1]];
+            renderManagerUI();
+            renderListButtons();
+            if(currentListId === currentEditListId) renderListButtons();
+            saveData();
+        }
+    }
+    function moveListDown() {
+        let idx = lists.findIndex(l => l.id === currentEditListId);
+        if(idx !== -1 && idx < lists.length-1) {
+            [lists[idx+1], lists[idx]] = [lists[idx], lists[idx+1]];
+            renderManagerUI();
+            renderListButtons();
+            if(currentListId === currentEditListId) renderListButtons();
+            saveData();
+        }
+    }
+    
+    async function autoFillRow(rowIdx, chineseText) {
+        if(!chineseText.trim()) return;
+        let pinyinResult = '';
+        try {
+            if(window.pinyinPro) {
+                pinyinResult = window.pinyinPro.pinyin(chineseText, { toneType:'symbol', separator:' ' });
+            }
+        } catch(e) { pinyinResult = chineseText; }
+        if(!pinyinResult) pinyinResult = chineseText;
+        
+        let englishText = getEnglishFromLocal(chineseText);
+        if(!englishText) {
+            try {
+                let res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(chineseText)}&langpair=zh|en`);
+                let data = await res.json();
+                englishText = data?.responseData?.translatedText || chineseText;
+                if(englishText.length > 60) englishText = englishText.substring(0,60);
+            } catch(e) { englishText = ''; }
+        }
+        
+        let list = lists.find(l=>l.id==currentEditListId);
+        if(list && list.words[rowIdx]) {
+            list.words[rowIdx].pinyin = pinyinResult;
+            list.words[rowIdx].english = englishText;
+            let tbody = document.getElementById('wordTbody');
+            let row = tbody.children[rowIdx];
+            if(row) {
+                row.cells[1].querySelector('input').value = pinyinResult;
+                row.cells[2].querySelector('input').value = englishText;
+            }
+        }
+    }
+    
+    function loadWordsToTable(listId) {
+        let list = lists.find(l=>l.id==listId);
+        let tbody = document.getElementById('wordTbody');
+        tbody.innerHTML='';
+        if(!list) return;
+        list.words.forEach((word, idx) => {
+            let tr = document.createElement('tr');
+            let tdCh = document.createElement('td');
+            let inpCh = document.createElement('input');
+            inpCh.type = 'text';
+            inpCh.value = word.chinese;
+            inpCh.className = 'input-chinese';
+            tdCh.appendChild(inpCh);
+            
+            let tdPy = document.createElement('td');
+            let inpPy = document.createElement('input');
+            inpPy.type = 'text';
+            inpPy.value = word.pinyin || '';
+            inpPy.className = 'input-pinyin';
+            tdPy.appendChild(inpPy);
+            
+            let tdEn = document.createElement('td');
+            let inpEn = document.createElement('input');
+            inpEn.type = 'text';
+            inpEn.value = word.english || '';
+            inpEn.className = 'input-english';
+            tdEn.appendChild(inpEn);
+            
+            let tdAct = document.createElement('td');
+            let delBtn = document.createElement('button');
+            delBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            delBtn.className = 'icon-btn';
+            delBtn.onclick = () => {
+                list.words.splice(idx, 1);
+                loadWordsToTable(listId);
+            };
+            tdAct.appendChild(delBtn);
+            
+            tr.appendChild(tdCh);
+            tr.appendChild(tdPy);
+            tr.appendChild(tdEn);
+            tr.appendChild(tdAct);
+            tbody.appendChild(tr);
+            
+            inpCh.addEventListener('change', async (e) => {
+                let newCh = e.target.value;
+                list.words[idx].chinese = newCh;
+                await autoFillRow(idx, newCh);
+                let currentRow = tbody.children[idx];
+                if(currentRow) {
+                    currentRow.cells[1].querySelector('input').value = list.words[idx].pinyin;
+                    currentRow.cells[2].querySelector('input').value = list.words[idx].english;
+                }
+            });
+            inpPy.addEventListener('change', (e) => {
+                list.words[idx].pinyin = e.target.value;
+            });
+            inpEn.addEventListener('change', (e) => {
+                list.words[idx].english = e.target.value;
+            });
+        });
+    }
+    
+    document.getElementById('addWordRowBtn').onclick = () => {
+        let list = lists.find(l=>l.id==currentEditListId);
+        if(list) {
+            list.words.push({chinese:'', pinyin:'', english:''});
+            loadWordsToTable(currentEditListId);
+        }
+    };
+    document.getElementById('saveSettingsBtn').onclick = () => {
+        if(currentListId && !lists.find(l=>l.id==currentListId)) currentListId = lists[0]?.id||null;
+        rebuildSequenceAndIndex(true);
+        renderListButtons();
+        updateCardByIndex();
+        saveData();
+        document.getElementById('wordManagerModal').style.display='none';
+    };
+    document.getElementById('newListBtn').onclick = () => { 
+        let newName = prompt('新词库名称','翰林集'); 
+        if(newName) lists.push({id:Date.now(), name:newName, words:[]}); 
+        renderManagerUI(); 
+        renderListButtons(); 
+    };
+    document.getElementById('editListNameBtn').onclick = () => { 
+        let list=lists.find(l=>l.id==currentEditListId); 
+        if(list){ 
+            let newn=prompt('新名称',list.name); 
+            if(newn) list.name=newn; 
+            renderManagerUI(); 
+            renderListButtons(); 
+        } 
+    };
+    document.getElementById('deleteListBtn').onclick = () => { 
+        if(lists.length<=1){ alert('至少保留一个词库'); return;} 
+        let idx=lists.findIndex(l=>l.id==currentEditListId); 
+        if(idx!==-1) lists.splice(idx,1); 
+        currentEditListId=lists[0]?.id; 
+        renderManagerUI(); 
+        renderListButtons(); 
+        if(currentListId == currentEditListId || !lists.find(l=>l.id==currentListId)) switchList(lists[0]?.id); 
+    };
+    document.getElementById('closeModalBtn').onclick = () => { document.getElementById('wordManagerModal').style.display='none'; };
+    document.getElementById('moveListUpBtn').onclick = moveListUp;
+    document.getElementById('moveListDownBtn').onclick = moveListDown;
+    
+    // 批量导入事件
+    document.getElementById('batchImportBtn').onclick = async () => {
+        let raw = document.getElementById('batchWordsInput').value;
+        if(!raw.trim()) { alert("请先粘贴词语"); return; }
+        let words = parseBatchWords(raw);
+        if(words.length === 0) { alert("没有识别到有效词语"); return; }
+        if(!currentEditListId) { alert("请先选择一个词库"); return; }
+        await batchAddWords(words, currentEditListId);
+        document.getElementById('batchWordsInput').value = '';
+        alert(`成功导入 ${words.length} 个词语，拼音和英文已自动生成（英文翻译可能需要几秒）`);
+    };
+    document.getElementById('clearBatchBtn').onclick = () => {
+        document.getElementById('batchWordsInput').value = '';
+    };
+    
+    // 导入导出事件
+    document.getElementById('exportDataBtn').onclick = exportData;
+    const importFileInput = document.getElementById('importFileInput');
+    document.querySelector('label[for="importFileInput"]').onclick = () => {
+        importFileInput.click();
+    };
+    importFileInput.onchange = (e) => {
+        if(e.target.files && e.target.files[0]) {
+            importData(e.target.files[0]);
+            importFileInput.value = ''; // 允许重复导入同一文件
+        }
+    };
+    
+    // 全屏功能
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => { console.warn(err); });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+    document.getElementById('fullscreenBtn').onclick = toggleFullscreen;
+    
+    // 音色语速
+    function loadVoices() { 
+        availableVoices = window.speechSynthesis.getVoices(); 
+        let sel=document.getElementById('voiceSelect'); 
+        sel.innerHTML=''; 
+        let hasSelected = false;
+        availableVoices.forEach(v=>{ 
+            let opt=document.createElement('option'); 
+            opt.value=v.voiceURI; 
+            opt.innerText=v.name; 
+            if(selectedVoiceURI===v.voiceURI) { opt.selected=true; hasSelected=true; }
+            sel.appendChild(opt); 
+        });
+        if(!hasSelected && availableVoices.length) {
+            let defaultVoice = availableVoices.find(v=>v.lang.includes('zh')) || availableVoices[0];
+            if(defaultVoice) selectedVoiceURI = defaultVoice.voiceURI;
+        }
+    }
+    document.getElementById('voiceSelectBtn').onclick = () => { loadVoices(); document.getElementById('voiceModal').style.display='flex'; };
+    document.getElementById('saveVoiceBtn').onclick = () => { let sel=document.getElementById('voiceSelect'); selectedVoiceURI=sel.value; saveData(); document.getElementById('voiceModal').style.display='none'; };
+    document.getElementById('rateSelectBtn').onclick = () => { document.getElementById('rateSlider').value=speechRate; document.getElementById('rateValue').innerText=speechRate; document.getElementById('rateModal').style.display='flex'; };
+    document.getElementById('saveRateBtn').onclick = () => { speechRate=parseFloat(document.getElementById('rateSlider').value); saveData(); document.getElementById('rateModal').style.display='none'; };
+    document.getElementById('rateSlider').oninput = function(){ document.getElementById('rateValue').innerText=this.value; };
+    document.getElementById('closeVoiceBtn')?.addEventListener('click',()=>{ document.getElementById('voiceModal').style.display='none'; });
+    
+    // 事件绑定
+    document.getElementById('prevBtn').onclick = () => { if(isReading) stopReading(); prevWordInternal(); };
+    document.getElementById('nextBtn').onclick = () => { if(isReading) stopReading(); nextWordInternal(); };
+    document.getElementById('resetProgressBtn').onclick = () => { if(isReading) stopReading(); resetProgress(); };
+    document.getElementById('startReadBtn').onclick = () => { startReadList(); };
+    document.getElementById('wordManageBtn').onclick = openWordManager;
+    document.getElementById('showChineseToggle').onclick = function(){ showChinese=!showChinese; this.classList.toggle('active',showChinese); updateCardByIndex(); };
+    document.getElementById('showEnglishToggle').onclick = function(){ showEnglish=!showEnglish; this.classList.toggle('active',showEnglish); updateCardByIndex(); };
+    document.getElementById('autoSwitchToggle').onclick = function(){ autoSwitch=!autoSwitch; this.classList.toggle('active',autoSwitch); };
+    document.getElementById('randomToggle').onclick = function(){ randomMode=!randomMode; this.classList.toggle('active',randomMode); resetProgress(); };
+    document.getElementById('repeatTimes').onchange = e => { repeatTimes = parseInt(e.target.value)||1; };
+    document.getElementById('intervalSec').onchange = e => { intervalSec = parseFloat(e.target.value)||0.5; };
+    
+    // 创建“跨越丝路”词库
+    function createSilkRoadList() {
+        const rawWords = [
+            "四","五","六","七","八","九","十","人","我","他","她","叫","岁","年","月","日","这","那","有","和","点","半","爱","看","听","说","写","吃","喝","唱","大","小","冷","热","春","夏","秋","冬","谁","几","也","都","水","茶","忙","想","累","会","两","不",
+            "你好","再见","谢谢","老师","名字","认识","高兴","中国","阿联酋","中文","什么","国家","汉语","晴天","下雨","下雪","星期","今天","上课","上学","回家","爸爸","妈妈","爷爷","奶奶","哥哥","姐姐","妹妹","现在","上午","中午","下午","晚上","学生","学习","学校","工作","起床","睡觉","喜欢","每天","唱歌","熊猫","音乐","朋友","生日","快乐","礼物","多少","爱好"
+        ];
+        const uniqueWords = [...new Map(rawWords.map(w => [w, w])).values()];
+        let silkWords = [];
+        for(let ch of uniqueWords) {
+            let py = '';
+            try { py = window.pinyinPro ? window.pinyinPro.pinyin(ch, { toneType:'symbol', separator:' ' }) : ch; } catch(e) { py = ch; }
+            let en = getEnglishFromLocal(ch);
+            silkWords.push({ chinese: ch, pinyin: py, english: en });
+        }
+        return { id: Date.now(), name: '跨越丝路', words: silkWords };
+    }
+    
+    function initData() {
+        let stored = localStorage.getItem('qinglvVocab');
+        if(stored) {
+            let obj = JSON.parse(stored);
+            lists = obj.lists || [];
+            currentListId = obj.currentListId;
+            speechRate = obj.speechRate ?? 1.0;
+            selectedVoiceURI = obj.selectedVoiceURI ?? null;
+        }
+        if(!lists.find(l => l.name === '跨越丝路')) {
+            let silkList = createSilkRoadList();
+            lists.push(silkList);
+            if(!currentListId) currentListId = silkList.id;
+        }
+        if(!lists.length) {
+            let defaultList = { id: Date.now(), name: '基础汉语', words: [{ chinese:"苹果", pinyin:"píng guǒ", english:"apple"},{ chinese:"老师", pinyin:"lǎo shī", english:"teacher"}] };
+            lists.push(defaultList);
+            currentListId = defaultList.id;
+        }
+        if(currentListId && !lists.find(l=>l.id==currentListId)) currentListId = lists[0]?.id;
+        if(!currentListId && lists.length) currentListId = lists[0].id;
+        rebuildSequenceAndIndex(true);
+        renderListButtons();
+        updateCardByIndex();
+        saveData();
+    }
+    
+    window.onload = () => {
+        initData();
+        window.speechSynthesis.getVoices();
+        setInterval(() => { if(window.speechSynthesis.getVoices().length) loadVoices(); }, 400);
+    };
+    window.addEventListener('beforeunload', () => { if(window.speechSynthesis.speaking) window.speechSynthesis.cancel(); });
+</script>
+</body>
+</html>
