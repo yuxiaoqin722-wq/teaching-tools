@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TASK消消乐 - 教学互动工具</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f1f7ec 0%, #e2ecd8 100%);
+            font-family: 'Quicksand', 'Poppins', '华文楷书', 'KaiTi', 'Microsoft YaHei', cursive;
+            min-height: 100vh;
+            padding: 20px 30px 60px 30px;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        /* 中国风淡雅点缀 */
+        body::before {
+            content: "☯";
+            font-size: 180px;
+            color: rgba(160, 140, 110, 0.06);
+            position: fixed;
+            bottom: 0px;
+            left: -40px;
+            pointer-events: none;
+            font-family: "华文楷书", serif;
+            transform: rotate(-10deg);
+        }
+        body::after {
+            content: "⿅";
+            font-size: 200px;
+            color: rgba(120, 95, 65, 0.05);
+            position: fixed;
+            top: 15%;
+            right: -30px;
+            pointer-events: none;
+            font-family: "华文楷书", cursive;
+            transform: rotate(8deg);
+        }
+
+        .app-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 头部：左中右布局，确保中间部分强制一排 */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+            background: rgba(245, 250, 235, 0.4);
+            backdrop-filter: blur(3px);
+            border-radius: 60px;
+            padding: 10px 24px;
+        }
+
+        /* 左侧标题区 - 支持可编辑任务名 */
+        .title-section {
+            flex: 1.2;
+            min-width: 180px;
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .task-title-wrapper {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 8px;
+            background: rgba(255,255,240,0.5);
+            padding: 0 12px 0 6px;
+            border-radius: 48px;
+        }
+        .main-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #567845;
+            letter-spacing: 2px;
+            font-family: 'Poppins', '华文楷书', cursive;
+            cursor: pointer;
+            transition: 0.1s;
+            white-space: nowrap;
+        }
+        .edit-title-btn {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: #8aa07a;
+            padding: 0 4px;
+            border-radius: 30px;
+            transition: 0.1s;
+        }
+        .edit-title-btn:hover {
+            background: #e0e9d4;
+            transform: scale(0.95);
+        }
+        .subtitle {
+            font-size: 0.85rem;
+            color: #8aa07a;
+            font-style: italic;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-left: 6px;
+        }
+
+        /* 中间功能区：强制一排，不换行 */
+        .function-bar {
+            flex: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: nowrap;
+            background: #fbfef5cc;
+            padding: 6px 20px;
+            border-radius: 60px;
+            backdrop-filter: blur(2px);
+        }
+        .timer-box {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            background: #ffffffc9;
+            padding: 4px 12px;
+            border-radius: 48px;
+            white-space: nowrap;
+        }
+        .timer-box span {
+            font-weight: 600;
+            color: #6b7c58;
+            font-size: 0.85rem;
+        }
+        #timerDisplay {
+            font-family: monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #b87c3a;
+            background: #fff3e4;
+            padding: 2px 10px;
+            border-radius: 40px;
+            letter-spacing: 1px;
+        }
+        .timer-controls {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        .timer-controls input {
+            width: 65px;
+            padding: 4px 6px;
+            border-radius: 30px;
+            border: 1px solid #cfddc0;
+            text-align: center;
+            font-family: 'Quicksand', monospace;
+            font-size: 0.8rem;
+        }
+        /* 更小的开始重置按钮 */
+        .small-icon-btn {
+            background: #e5efdb;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 32px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.7rem;
+            transition: 0.1s;
+            font-family: 'Quicksand', sans-serif;
+        }
+        .small-icon-btn:hover {
+            background: #d1e0be;
+        }
+        /* 完成进度 - 只显示数字 */
+        .stats-box {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            background: #ffffffc9;
+            padding: 4px 16px;
+            border-radius: 48px;
+        }
+        .stats-box .stats-icon {
+            font-size: 1.1rem;
+        }
+        #completionStats {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #5f7c48;
+            background: #f2f7ea;
+            padding: 2px 12px;
+            border-radius: 48px;
+            font-family: monospace;
+        }
+        /* 全屏按钮 - 纯图标设计 */
+        .fullscreen-icon {
+            background: #e5efdb;
+            border: none;
+            font-size: 1.2rem;
+            padding: 5px 10px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.1s;
+            line-height: 1;
+        }
+        .fullscreen-icon:hover {
+            background: #d1e0be;
+            transform: scale(0.96);
+        }
+
+        /* 右侧班级管理 */
+        .class-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8fbf2cc;
+            backdrop-filter: blur(4px);
+            padding: 5px 16px;
+            border-radius: 50px;
+        }
+        .current-class-select {
+            background: #fffef7;
+            border: 1px solid #cfddc0;
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #4a6236;
+            cursor: pointer;
+        }
+        .class-manage-btn {
+            background: #e2ecd4;
+            border: none;
+            padding: 5px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #446633;
+            cursor: pointer;
+        }
+
+        /* 游戏面板 (泡泡+英雄榜) 完全保留原样 */
+        .game-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .bubbles-area {
+            flex: 2.5;
+            min-width: 260px;
+            background: rgba(250, 252, 245, 0.5);
+            border-radius: 60px;
+            padding: 24px 20px;
+            backdrop-filter: blur(3px);
+            min-height: 520px;
+        }
+        .bubbles-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            justify-content: flex-start;
+        }
+        .bubble {
+            width: 138px;
+            height: 94px;
+            background: rgba(255, 248, 235, 0.92);
+            backdrop-filter: blur(8px);
+            border-radius: 32px 20px 36px 20px;
+            box-shadow: 0 15px 22px -10px rgba(80, 60, 30, 0.18), inset 0 1px 2px rgba(255,255,210,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #4f3e2c;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            animation: float 2.8s infinite ease-in-out;
+            border: 1px solid rgba(230, 210, 175, 0.7);
+            text-align: center;
+            line-height: 1.3;
+            padding: 0 8px;
+            font-family: 'Quicksand', 'Poppins', '华文楷书', 'KaiTi', cursive;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-7px); }
+            100% { transform: translateY(0px); }
+        }
+        .bubble:hover {
+            background: rgba(255, 245, 225, 0.98);
+            transform: scale(1.02);
+        }
+        .leaderboard-area {
+            flex: 1.2;
+            min-width: 270px;
+            background: #fdfaf2ea;
+            border-radius: 48px;
+            backdrop-filter: blur(5px);
+            padding: 20px 16px;
+            border: 1px solid #e3d7c4;
+        }
+        .board-header {
+            text-align: center;
+            border-bottom: 2px solid #ded0b6;
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+        .board-header h3 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: #b17a48;
+            letter-spacing: 3px;
+            font-family: 'Poppins', '华文楷书', cursive;
+            margin-bottom: 6px;
+        }
+        .hero-sub {
+            font-size: 0.7rem;
+            color: #ab9a7a;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .reset-board {
+            background: #f0e7da;
+            border: none;
+            font-size: 0.7rem;
+            color: #8f7656;
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 40px;
+            margin-top: 6px;
+        }
+        .rank-list {
+            list-style: none;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .rank-list li {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: #fffef9;
+            border-radius: 48px;
+            font-weight: 600;
+            border-left: 5px solid #ddc8a8;
+        }
+        .rank-number {
+            font-weight: bold;
+            font-size: 1.1rem;
+            width: 36px;
+            text-align: center;
+            color: #9b7a54;
+        }
+        .rank-name {
+            flex: 1;
+            font-size: 0.95rem;
+        }
+        .rank-list li.first .rank-name { color: #e6b422; font-weight: 800; }
+        .rank-list li.second .rank-name { color: #5f8b9c; font-weight: 800; }
+        .rank-list li.third .rank-name { color: #cd7a32; font-weight: 800; }
+
+        /* 班级管理弹窗 (保留完整) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(80, 70, 50, 0.35);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #fffdf7;
+            width: 880px;
+            max-width: 92vw;
+            max-height: 85vh;
+            border-radius: 52px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e2d3bd;
+        }
+        .modal-header {
+            padding: 18px 26px;
+            background: #f2ecdf;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #5e4a34;
+        }
+        .modal-body {
+            display: flex;
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+        .class-sidebar {
+            flex: 1.2;
+            min-width: 200px;
+            border-right: 1px solid #e8ddcc;
+            padding-right: 20px;
+        }
+        .student-manager {
+            flex: 2.2;
+            min-width: 260px;
+        }
+        .class-list {
+            list-style: none;
+            margin-top: 12px;
+        }
+        .class-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #faf3e6;
+            margin: 8px 0;
+            padding: 8px 12px;
+            border-radius: 36px;
+            cursor: pointer;
+        }
+        .class-item.active { background: #dee9cf; border-left: 6px solid #bb8b52; }
+        .class-name {
+            font-weight: bold;
+            flex: 1;
+            cursor: pointer;
+        }
+        .move-btns button, .delete-class {
+            background: none;
+            border: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin: 0 2px;
+            color: #9b8463;
+        }
+        .delete-class { color: #bc7a5a; }
+        .new-class-btn {
+            margin-top: 20px;
+            background: #d4e2c4;
+            border: none;
+            padding: 8px;
+            border-radius: 60px;
+            width: 100%;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .student-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fffef5;
+            padding: 6px 12px;
+            margin: 8px 0;
+            border-radius: 40px;
+        }
+        .student-name-display {
+            flex: 1;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 28px;
+        }
+        .batch-area textarea {
+            width: 100%;
+            height: 80px;
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 28px;
+            border: 1px solid #ddd0b6;
+        }
+        button { background: #e9dfce; border: none; padding: 5px 14px; border-radius: 40px; cursor: pointer; }
+        .save-settings { background: #b6cf9a; color: #2c3e1f; font-weight: bold; }
+        .inline-input {
+            font-family: 'Quicksand', '华文楷书', cursive;
+            padding: 4px 8px;
+            border-radius: 28px;
+            border: 1px solid #cbbf9f;
+            background: #fffef0;
+            width: 100%;
+        }
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #5b7c44dd;
+            backdrop-filter: blur(8px);
+            color: #fff7e8;
+            padding: 8px 22px;
+            border-radius: 48px;
+            font-weight: bold;
+            z-index: 1100;
+            font-size: 0.85rem;
+            animation: fadeOut 1.8s ease forwards;
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: translateX(-50%) translateY(0);}
+            80% { opacity: 1;}
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); visibility: hidden;}
+        }
+        .empty-tip { color: #b6a27e; text-align: center; padding: 20px; }
+        /* 署名固定底层，隶体淡色块 */
+        .signature {
+            position: fixed;
+            bottom: 12px;
+            right: 20px;
+            font-family: '华文隶书', 'LiSu', cursive;
+            font-size: 0.7rem;
+            color: #bcae8a;
+            background: rgba(230, 220, 200, 0.45);
+            padding: 3px 14px;
+            border-radius: 30px;
+            backdrop-filter: blur(3px);
+            letter-spacing: 1px;
+            z-index: 99;
+            pointer-events: none;
+            opacity: 0.75;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">
+        <!-- 左侧：可编辑任务标题 -->
+        <div class="title-section">
+            <div class="task-title-wrapper">
+                <span id="taskTitle" class="main-title">📖 TASK消消乐</span>
+                <button id="editTaskBtn" class="edit-title-btn" title="点击修改任务名称">✏️</button>
+            </div>
+            <div class="subtitle">✨ I learned I'm happy ✨</div>
+        </div>
+
+        <!-- 中间功能区：一排显示 -->
+        <div class="function-bar">
+            <!-- 倒计时区域 -->
+            <div class="timer-box">
+                <span>⏳</span>
+                <div id="timerDisplay">05:00</div>
+                <div class="timer-controls">
+                    <input type="number" id="timerMinutes" value="5" step="0.5" min="0.1">
+                    <button id="startTimerBtn" class="small-icon-btn">开始</button>
+                    <button id="resetTimerBtn" class="small-icon-btn">重置</button>
+                </div>
+            </div>
+            <!-- 完成进度 - 只显示数字 + 图标 -->
+            <div class="stats-box">
+                <span class="stats-icon">✅</span>
+                <span id="completionStats">0 / 0</span>
+            </div>
+            <!-- 全屏按钮 - 纯图标重新设计 -->
+            <button id="fullscreenBtn" class="fullscreen-icon" title="全屏模式">⤢</button>
+        </div>
+
+        <!-- 右侧班级管理 -->
+        <div class="class-control">
+            <select id="globalClassSelect" class="current-class-select"></select>
+            <button id="classManageBtn" class="class-manage-btn">📚 班级管理</button>
+        </div>
+    </div>
+
+    <div class="game-panel">
+        <div class="bubbles-area">
+            <div id="bubblesContainer" class="bubbles-grid"></div>
+        </div>
+        <div class="leaderboard-area">
+            <div class="board-header">
+                <h3>🏅 英雄榜 🏅</h3>
+                <div class="hero-sub">
+                    <span>Yīng Xióng Bǎng</span> · <span>Hall of Fame</span>
+                </div>
+                <button id="resetActivityBtn" class="reset-board">🔄 重置活动</button>
+            </div>
+            <ul id="rankList" class="rank-list">
+                <li style="justify-content:center; color:#bea179;">✨ 点击泡泡 荣登英雄榜 ✨</li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="signature">小琴调</div>
+
+<!-- 班级管理弹窗（完整保留原有结构） -->
+<div id="classModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span>🏮 班级管理 · 花名册</span>
+            <button id="closeModalBtn" style="background:none; font-size:24px;">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="class-sidebar">
+                <h4>📚 班级列表 <span style="font-size:12px;">(上下移动排序)</span></h4>
+                <ul id="classListModal" class="class-list"></ul>
+                <button id="newClassBtn" class="new-class-btn">+ 新建班级</button>
+            </div>
+            <div class="student-manager">
+                <h4>👩‍🎓 学生名单 · 当前班级</h4>
+                <div id="currentClassNameDisplay" style="font-weight:bold; margin-bottom: 8px;"></div>
+                <div class="batch-area">
+                    <textarea id="batchNamesInput" placeholder="在此粘贴学生姓名，每行一个姓名，例如：&#10;李小乐&#10;张子轩&#10;林恬恬"></textarea>
+                    <button id="importBatchBtn">📎 批量导入/替换</button>
+                </div>
+                <div id="studentListModalContainer" style="margin-top: 12px; max-height: 240px; overflow-y: auto;"></div>
+                <div style="margin-top: 12px; display:flex; gap:10px;">
+                    <input type="text" id="newStudentName" placeholder="新学生姓名" style="flex:1; border-radius: 40px; border:1px solid #ddcfb4; padding: 5px 10px;">
+                    <button id="addStudentBtn">➕ 添加</button>
+                </div>
+            </div>
+        </div>
+        <div style="padding: 16px 24px 24px; display: flex; justify-content: flex-end; gap: 16px;">
+            <button id="cancelModalBtn">取消</button>
+            <button id="saveModalBtn" class="save-settings">💾 保存设置并退出</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- 数据 ----------
+    let classData = [];        
+    let currentClassId = null;
+    let eliminatedSet = new Set();     
+    let rankOrder = [];        
+    // 可编辑任务名称存储
+    let customTaskName = localStorage.getItem('customTaskName') || "📖 TASK消消乐";
+
+    const cheers = [
+        "Awesome! 🌟", "Good job! 🎉", "Excellent! 💪", "Nice work! ✨",
+        "Keep going! 🚀", "You rock! 🤘", "So clever! 🧠", "Perfect! 🍭",
+        "Boom! 💥", "Fantastic! 🌈", "Way to go! 🎈", "Brilliant! 🎯", "Terrific! 🍀"
+    ];
+
+    function showEncouragement(name) {
+        const randomMsg = cheers[Math.floor(Math.random() * cheers.length)];
+        const toast = document.createElement('div');
+        toast.className = 'toast-msg';
+        toast.innerText = `🎈 ${name} ${randomMsg}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 1500);
+    }
+
+    function saveData() {
+        localStorage.setItem('taskEliminate', JSON.stringify({ classData, currentClassId }));
+    }
+
+    function loadData() {
+        const raw = localStorage.getItem('taskEliminate');
+        if (raw) {
+            try {
+                const data = JSON.parse(raw);
+                classData = data.classData || [];
+                currentClassId = data.currentClassId || null;
+            } catch(e) {}
+        }
+        if (!classData.length) {
+            classData = [
+                { id: 'c1', name: '启蒙班', students: ['李小乐', '张子轩', '林恬恬', '赵一鸣'] },
+                { id: 'c2', name: '朝阳班', students: ['周若曦', '吴子涵', '郑子琪', '王思睿'] }
+            ];
+            currentClassId = classData[0].id;
+        }
+        if (!classData.find(c => c.id === currentClassId) && classData.length) currentClassId = classData[0].id;
+        saveData();
+    }
+
+    // 更新完成进度数字
+    function updateCompletionStats() {
+        const curClass = classData.find(c => c.id === currentClassId);
+        if (!curClass) {
+            document.getElementById('completionStats').innerText = `0 / 0`;
+            return;
+        }
+        const total = curClass.students.length;
+        const completed = eliminatedSet.size;
+        document.getElementById('completionStats').innerText = `${completed} / ${total}`;
+    }
+
+    function resetCurrentActivity() {
+        eliminatedSet.clear();
+        rankOrder = [];
+        renderBubblesAndRank();
+        updateCompletionStats();
+    }
+
+    function renderBubblesAndRank() {
+        const curClass = classData.find(c => c.id === currentClassId);
+        if (!curClass) return;
+        const students = curClass.students || [];
+        const container = document.getElementById('bubblesContainer');
+        container.innerHTML = '';
+        students.forEach(name => {
+            if (!eliminatedSet.has(name)) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.innerText = name;
+                bubble.addEventListener('click', () => {
+                    if (eliminatedSet.has(name)) return;
+                    eliminatedSet.add(name);
+                    rankOrder.push(name);
+                    showEncouragement(name);
+                    renderBubblesAndRank();
+                    updateCompletionStats();
+                });
+                container.appendChild(bubble);
+            }
+        });
+        if (students.length === 0) {
+            container.innerHTML = '<div class="empty-tip">🍃 暂无学生，请在班级管理中添加 🍃</div>';
+        } else if (container.children.length === 0 && students.length > 0) {
+            container.innerHTML = '<div class="empty-tip">🎉 太棒啦！所有任务完成 🎉</div>';
+        }
+
+        const rankListEl = document.getElementById('rankList');
+        rankListEl.innerHTML = '';
+        if (rankOrder.length === 0) {
+            rankListEl.innerHTML = '<li style="justify-content:center; color:#bea179;">✨ 点击泡泡 荣登英雄榜 ✨</li>';
+        } else {
+            rankOrder.forEach((student, idx) => {
+                const rankNum = idx + 1;
+                const li = document.createElement('li');
+                let rankClass = '';
+                if (rankNum === 1) rankClass = 'first';
+                else if (rankNum === 2) rankClass = 'second';
+                else if (rankNum === 3) rankClass = 'third';
+                li.className = rankClass;
+                li.innerHTML = `<span class="rank-number">${rankNum}</span><span class="rank-name">${escapeHtml(student)}</span>`;
+                rankListEl.appendChild(li);
+            });
+        }
+        updateCompletionStats();
+    }
+
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;});}
+
+    function refreshFullUI() {
+        renderClassSelect();
+        renderBubblesAndRank();
+        updateCompletionStats();
+        // 更新任务标题显示
+        document.getElementById('taskTitle').innerHTML = customTaskName;
+    }
+
+    function renderClassSelect() {
+        const select = document.getElementById('globalClassSelect');
+        select.innerHTML = '';
+        classData.forEach(cls => {
+            const opt = document.createElement('option');
+            opt.value = cls.id;
+            opt.innerText = cls.name;
+            if (cls.id === currentClassId) opt.selected = true;
+            select.appendChild(opt);
+        });
+        select.onchange = (e) => {
+            const newId = e.target.value;
+            if (newId !== currentClassId) {
+                currentClassId = newId;
+                eliminatedSet.clear();
+                rankOrder = [];
+                saveData();
+                refreshFullUI();
+            }
+        };
+    }
+
+    // ---------- 倒计时模块（修正精确分钟）----------
+    let countdownInterval = null;
+    let remainingSeconds = 300;
+    function updateTimerDisplay() {
+        const mins = Math.floor(remainingSeconds / 60);
+        const secs = remainingSeconds % 60;
+        document.getElementById('timerDisplay').innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+    }
+    function stopCountdown() {
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+    }
+    function startCountdown() {
+        stopCountdown();
+        // 从输入框获取分钟，精确转为秒
+        let minutesVal = parseFloat(document.getElementById('timerMinutes').value);
+        if (isNaN(minutesVal) || minutesVal <= 0) minutesVal = 5;
+        remainingSeconds = Math.floor(minutesVal * 60);
+        if (remainingSeconds <= 0) remainingSeconds = 60;
+        updateTimerDisplay();
+        countdownInterval = setInterval(() => {
+            if (remainingSeconds <= 0) {
+                stopCountdown();
+                // 声音提示
+                const utterance = new SpeechSynthesisUtterance("Time is up! 时间到啦");
+                utterance.lang = 'en-US';
+                speechSynthesis.speak(utterance);
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    oscillator.frequency.value = 880;
+                    gainNode.gain.value = 0.25;
+                    oscillator.start();
+                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.8);
+                    oscillator.stop(audioCtx.currentTime + 0.7);
+                } catch(e) { console.log("audio not supported"); }
+                updateTimerDisplay();
+                return;
+            }
+            remainingSeconds--;
+            updateTimerDisplay();
+        }, 1000);
+    }
+    function resetTimer() {
+        stopCountdown();
+        let minutesVal = parseFloat(document.getElementById('timerMinutes').value);
+        if (isNaN(minutesVal) || minutesVal <= 0) minutesVal = 5;
+        remainingSeconds = Math.floor(minutesVal * 60);
+        updateTimerDisplay();
+    }
+
+    // 全屏功能（图标重新设计，功能不变）
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => console.log(err));
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    // 任务名称编辑
+    function editTaskName() {
+        const newName = prompt("请输入任务名称（例如：背诵古诗）", customTaskName.replace(/^📖 /, ''));
+        if (newName && newName.trim()) {
+            let displayName = newName.trim();
+            if (!displayName.startsWith("📖")) displayName = "📖 " + displayName;
+            customTaskName = displayName;
+            localStorage.setItem('customTaskName', customTaskName);
+            document.getElementById('taskTitle').innerHTML = customTaskName;
+        }
+    }
+
+    // ---------- 班级管理弹窗逻辑（完整保留）----------
+    let currentEditClassId = null;
+    let modal = null;
+    function openModal() { if (!modal) modal = document.getElementById('classModal'); currentEditClassId = currentClassId; refreshModalClassList(); refreshStudentManagerUI(); modal.style.display = 'flex'; }
+    function closeModal() { if(modal) modal.style.display = 'none'; }
+    function refreshModalClassList() {
+        const container = document.getElementById('classListModal');
+        container.innerHTML = '';
+        classData.forEach((cls, idx) => {
+            const li = document.createElement('li'); li.className = 'class-item';
+            if (currentEditClassId === cls.id) li.classList.add('active');
+            const nameSpan = document.createElement('span'); nameSpan.className = 'class-name'; nameSpan.innerText = cls.name;
+            nameSpan.ondblclick = (e) => { e.stopPropagation(); inlineEditClassname(cls.id, nameSpan); };
+            const moveDiv = document.createElement('div'); moveDiv.className = 'move-btns';
+            moveDiv.innerHTML = `<button class="move-up" ${idx===0?'disabled style="opacity:0.4;"':''}>↑</button>
+                                 <button class="move-down" ${idx===classData.length-1?'disabled style="opacity:0.4;"':''}>↓</button>
+                                 <button class="delete-class">🗑️</button>`;
+            const upBtn = moveDiv.querySelector('.move-up'); if(upBtn && idx!==0) upBtn.onclick = (e) => { e.stopPropagation(); moveClass(idx, -1); };
+            const downBtn = moveDiv.querySelector('.move-down'); if(downBtn && idx!==classData.length-1) downBtn.onclick = (e) => { e.stopPropagation(); moveClass(idx, 1); };
+            const delBtn = moveDiv.querySelector('.delete-class'); delBtn.onclick = (e) => { e.stopPropagation(); deleteClassById(cls.id); };
+            li.appendChild(nameSpan); li.appendChild(moveDiv);
+            li.onclick = (e) => { if(e.target.tagName === 'BUTTON') return; currentEditClassId = cls.id; refreshModalClassList(); refreshStudentManagerUI(); };
+            container.appendChild(li);
+        });
+        if(!classData.length) container.innerHTML = '<div class="empty-tip">暂无班级，点击新建</div>';
+    }
+    function inlineEditClassname(classId, spanElement) {
+        const cls = classData.find(c=>c.id===classId); if(!cls) return;
+        const input = document.createElement('input'); input.value = cls.name; input.className = 'inline-input';
+        spanElement.innerText = ''; spanElement.appendChild(input); input.focus();
+        const save = () => { const newName = input.value.trim(); if(newName) cls.name = newName; if(currentClassId === classId) renderClassSelect(); refreshModalClassList(); };
+        input.addEventListener('blur', save); input.addEventListener('keypress', (e) => { if(e.key === 'Enter') input.blur(); });
+    }
+    function moveClass(index, direction) { let newIdx = index+direction; if(newIdx<0||newIdx>=classData.length) return; [classData[index], classData[newIdx]] = [classData[newIdx], classData[index]]; if(currentEditClassId === classData[index].id) currentEditClassId = classData[newIdx].id; else if(currentEditClassId === classData[newIdx].id) currentEditClassId = classData[index].id; refreshModalClassList(); refreshStudentManagerUI(); }
+    function deleteClassById(classId) { if(classData.length===1) { alert("至少保留一个班级"); return; } const idx = classData.findIndex(c=>c.id===classId); if(idx!==-1){ classData.splice(idx,1); if(currentEditClassId === classId) currentEditClassId = classData[0]?.id||null; if(currentClassId === classId){ currentClassId = classData[0]?.id||null; eliminatedSet.clear(); rankOrder = []; } refreshModalClassList(); refreshStudentManagerUI(); renderClassSelect(); refreshFullUI(); } }
+    function refreshStudentManagerUI() {
+        const container = document.getElementById('studentListModalContainer');
+        const titleSpan = document.getElementById('currentClassNameDisplay');
+        if (!currentEditClassId) { titleSpan.innerText = '未选中班级'; container.innerHTML = '<div class="empty-tip">请从左侧选择一个班级</div>'; return; }
+        const cls = classData.find(c=>c.id===currentEditClassId); if(!cls) return;
+        titleSpan.innerText = `📖 ${escapeHtml(cls.name)}  (${cls.students.length}人)`;
+        container.innerHTML = '';
+        cls.students.forEach((stu, idx) => {
+            const div = document.createElement('div'); div.className = 'student-item';
+            const nameSpan = document.createElement('span'); nameSpan.className = 'student-name-display'; nameSpan.innerText = stu;
+            nameSpan.ondblclick = (e) => { e.stopPropagation(); inlineEditStudent(cls.id, idx, nameSpan); };
+            const delBtn = document.createElement('button'); delBtn.innerText = '🗑️'; delBtn.className = 'delete-student';
+            delBtn.onclick = (e) => { e.stopPropagation(); cls.students.splice(idx,1); refreshStudentManagerUI(); };
+            div.appendChild(nameSpan); div.appendChild(delBtn); container.appendChild(div);
+        });
+        if(cls.students.length===0) container.innerHTML = '<div class="empty-tip">暂无学生，可批量导入或添加</div>';
+    }
+    function inlineEditStudent(classId, studentIdx, spanElement) {
+        const cls = classData.find(c=>c.id===classId); if(!cls) return;
+        const input = document.createElement('input'); input.value = cls.students[studentIdx]; input.className = 'inline-input';
+        spanElement.innerText = ''; spanElement.appendChild(input); input.focus();
+        const save = () => { let newVal = input.value.trim(); if(newVal) cls.students[studentIdx] = newVal; refreshStudentManagerUI(); };
+        input.addEventListener('blur', save); input.addEventListener('keypress', (e) => { if(e.key === 'Enter') input.blur(); });
+    }
+    function batchImport() { if(!currentEditClassId) return; const raw = document.getElementById('batchNamesInput').value; if(!raw.trim()) return; const lines = raw.split(/\r?\n/).filter(l=>l.trim()); if(lines.length){ const cls = classData.find(c=>c.id===currentEditClassId); if(cls){ cls.students = lines.map(l=>l.trim()); refreshStudentManagerUI(); document.getElementById('batchNamesInput').value = ''; } } }
+    function addSingleStudent() { if(!currentEditClassId) return; const input = document.getElementById('newStudentName'); const name = input.value.trim(); if(name){ const cls = classData.find(c=>c.id===currentEditClassId); if(cls) { cls.students.push(name); refreshStudentManagerUI(); input.value=''; } } }
+    function saveAndExit() { if(currentClassId){ const curExists = classData.find(c=>c.id===currentClassId); if(curExists){ eliminatedSet.clear(); rankOrder = []; } else if(classData.length){ currentClassId = classData[0].id; eliminatedSet.clear(); rankOrder = []; } } saveData(); refreshFullUI(); closeModal(); }
+
+    window.onload = () => {
+        loadData();
+        if(!currentClassId && classData.length) currentClassId = classData[0].id;
+        eliminatedSet.clear(); rankOrder = [];
+        refreshFullUI();
+        resetTimer();
+        document.getElementById('startTimerBtn').onclick = startCountdown;
+        document.getElementById('resetTimerBtn').onclick = resetTimer;
+        document.getElementById('fullscreenBtn').onclick = toggleFullscreen;
+        document.getElementById('editTaskBtn').onclick = editTaskName;
+        document.getElementById('classManageBtn').onclick = openModal;
+        document.getElementById('closeModalBtn').onclick = closeModal;
+        document.getElementById('cancelModalBtn').onclick = closeModal;
+        document.getElementById('saveModalBtn').onclick = saveAndExit;
+        document.getElementById('newClassBtn').onclick = () => { const newId = 'c'+Date.now(); classData.push({ id: newId, name: `班级${classData.length+1}`, students: [] }); currentEditClassId = newId; refreshModalClassList(); refreshStudentManagerUI(); };
+        document.getElementById('importBatchBtn').onclick = batchImport;
+        document.getElementById('addStudentBtn').onclick = addSingleStudent;
+        document.getElementById('resetActivityBtn').onclick = () => { resetCurrentActivity(); };
+        renderClassSelect();
+    };
+</script>
+</body>
+</html>
