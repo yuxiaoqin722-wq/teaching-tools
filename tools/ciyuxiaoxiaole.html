@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-select=no">
+    <title>小琴调 · 生词消消乐 | 实时预览 · 词汇比例控制</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:opsz,wght@14..32,300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/pinyin-pro@3.19.6/dist/index.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #eef2f3 0%, #d9e4e8 100%);
+            font-family: 'Inter', 'Segoe UI', 'Noto Sans CJK SC', system-ui, sans-serif;
+            padding: 1.5rem 2rem 0.5rem;
+            transition: background 0.3s;
+            position: relative;
+        }
+        body.theme-flower { background: linear-gradient(135deg, #fef7e8, #f3e0cf); }
+        body.theme-space { background: linear-gradient(135deg, #e2eafc, #cbd5e6); }
+        body.theme-candy { background: linear-gradient(135deg, #fff0f5, #ffe0e7); }
+        body.theme-forest { background: linear-gradient(135deg, #e4f5e2, #d1e6cd); }
+        body.theme-ocean { background: linear-gradient(135deg, #e0f0fa, #cde3f2); }
+
+        .game-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(3px);
+            border-radius: 2.5rem;
+            padding: 1.5rem 1.8rem 1.2rem;
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.08);
+        }
+
+        .title-area {
+            text-align: center;
+            margin-bottom: 1.2rem;
+        }
+        .title-cn {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #2b4b2a, #6f9660);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+        }
+        .title-en {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #7b8f72;
+            letter-spacing: 1px;
+            margin-top: 0.2rem;
+        }
+
+        .toolbar {
+            background: rgba(255, 248, 240, 0.7);
+            backdrop-filter: blur(6px);
+            border-radius: 3rem;
+            padding: 0.6rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem;
+        }
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 250, 235, 0.6);
+            padding: 0.2rem 1rem;
+            border-radius: 2rem;
+        }
+        .slider-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+        }
+        input[type="range"] { width: 100px; height: 3px; -webkit-appearance: none; background: #cfddc4; border-radius: 3px; }
+        input[type="range"]::-webkit-slider-thumb { width: 14px; height: 14px; border-radius: 50%; background: #5f7e52; cursor: pointer; }
+        .value-indicator {
+            background: #e7efdf;
+            border-radius: 20px;
+            padding: 0.15rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            min-width: 55px;
+            text-align: center;
+        }
+        .icon-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.2rem 0.6rem;
+            border-radius: 2rem;
+            transition: 0.2s;
+        }
+        .icon-btn:hover { background: #ffffffb3; transform: scale(1.02); }
+        .primary-solid {
+            background: #7c9a6e;
+            color: white;
+            border: none;
+            padding: 0.3rem 1rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        select {
+            background: transparent;
+            border: none;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        .info-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 0 1rem 0;
+        }
+        .timer-custom {
+            background: #ece6dcd9;
+            border-radius: 2rem;
+            padding: 0.2rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-right: 1rem;
+        }
+        .timer-custom label { font-size: 0.75rem; color: #6c6a5c; }
+        .timer-custom input {
+            width: 55px;
+            border: none;
+            background: #fff6e8;
+            border-radius: 2rem;
+            padding: 0.2rem 0.5rem;
+            font-family: monospace;
+            font-weight: 600;
+            text-align: center;
+        }
+        .countdown-light {
+            font-size: 1.8rem;
+            font-weight: 600;
+            font-family: monospace;
+            background: #dde4d4aa;
+            color: #5f6e55;
+            padding: 0.2rem 1.5rem;
+            border-radius: 3rem;
+            letter-spacing: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .players-pk-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+        .player-card {
+            background: rgba(255, 250, 240, 0.85);
+            backdrop-filter: blur(4px);
+            border-radius: 1.8rem;
+            flex: 1;
+            min-width: 270px;
+            padding: 1rem;
+            transition: all 0.2s;
+            border: 1px solid #efe3cf;
+            display: flex;
+            flex-direction: column;
+        }
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.6rem;
+            flex-wrap: wrap;
+        }
+        .player-name-editable {
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: #e9e1cf;
+            padding: 0.2rem 0.8rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .medal-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0.5rem 0;
+        }
+        .medal {
+            font-size: 3.5rem;
+            line-height: 1;
+        }
+        .player-status { font-size: 0.7rem; color: #7f7a64; margin: 0.3rem 0; text-align: center; }
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+            gap: 0.7rem;
+            max-height: 380px;
+            overflow-y: auto;
+            padding: 0.2rem;
+        }
+        .preview-card {
+            aspect-ratio: 1 / 0.9;
+            background: #f5f0e4;
+            border-radius: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 500;
+            padding: 0.5rem 0.2rem;
+            border: 1px dashed #cbc1a8;
+            color: #8b7a62;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        .preview-card .preview-pinyin {
+            font-size: 0.7rem;
+            color: #b0a07e;
+            margin-bottom: 0.2rem;
+        }
+        .preview-card .preview-word {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .card {
+            aspect-ratio: 1 / 0.9;
+            background: #fffef7;
+            border-radius: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 500;
+            padding: 0.5rem 0.2rem;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+            border: 1px solid #ddd2b0;
+            transition: 0.1s;
+        }
+        .card .pinyin-part {
+            font-size: 0.8rem;
+            color: #9b8e6e;
+            margin-bottom: 0.3rem;
+        }
+        .card .word-part {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d4a2a;
+        }
+        .card.matched {
+            visibility: hidden;
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0.7);
+        }
+        .card.selected {
+            background: #f9eec1;
+            border: 3px solid #d4b87a;
+        }
+        .hero-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .hero-card {
+            background: #fffaf0;
+            border-radius: 2.5rem;
+            padding: 2rem;
+            text-align: center;
+            min-width: 320px;
+            box-shadow: 0 25px 40px rgba(0,0,0,0.2);
+        }
+        .rank-item {
+            font-size: 1.2rem;
+            margin: 0.8rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+        .rank-medal { font-size: 1.8rem; }
+        .modal-overlay {
+            position: fixed;
+            top:0;left:0;width:100%;height:100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: #fffcf5;
+            border-radius: 2rem;
+            width: 950px;
+            max-width: 95%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        .theme-list-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin: 1rem 0;
+            border-bottom: 1px solid #e2dccd;
+            padding-bottom: 1rem;
+        }
+        .theme-btn {
+            background: #e9e1cf;
+            border: none;
+            border-radius: 2rem;
+            padding: 0.3rem 1rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .theme-btn.active { background: #7c9a6e; color: white; }
+        .pair-editor {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        .pair-column {
+            flex: 1;
+            background: #fef9ef;
+            border-radius: 1.5rem;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .pair-column h4 { margin-bottom: 0.8rem; color: #5f7e52; }
+        .pair-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .pair-row textarea, .pair-row input {
+            flex: 1;
+            padding: 0.4rem;
+            border-radius: 1rem;
+            border: 1px solid #ddd;
+            font-size: 0.8rem;
+            resize: vertical;
+        }
+        .pair-row button {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .pinyin-switch-btn {
+            background: #e2e7dc;
+            border-radius: 2rem;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.7rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .pinyin-switch-btn.active { background: #5f7e52; color: white; }
+        .auto-btn { background: #cddec2; border: none; border-radius: 2rem; padding: 0.2rem 0.8rem; font-size: 0.7rem; margin-top: 0.5rem; cursor: pointer; text-align: center; }
+        .batch-area {
+            margin-top: 1rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed #ddd;
+        }
+        .batch-textarea {
+            width: 100%;
+            height: 100px;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border-radius: 1rem;
+            border: 1px solid #ddd;
+            font-family: monospace;
+        }
+        .left-batch-buttons {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        footer {
+            text-align: right;
+            margin-top: 1rem;
+            font-family: '华文隶书', '隶书', cursive;
+            font-size: 0.75rem;
+            color: #8b9a7a;
+            background: rgba(210,210,180,0.2);
+            display: inline-block;
+            padding: 0.1rem 1rem;
+            border-radius: 2rem;
+            float: right;
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="title-area">
+        <div class="title-cn">🍃 生词消消乐 · 灵韵配对 🍃</div>
+        <div class="title-en">LexiMatch · Pinyin Pop</div>
+    </div>
+
+    <div class="toolbar">
+        <div class="tool-group">
+            <span>👥</span>
+            <div class="slider-label"><input type="range" id="playerSlider" min="1" max="4" value="2"><span id="playerValue" class="value-indicator">2人</span></div>
+        </div>
+        <div class="tool-group">
+            <span>📊 词汇比例</span>
+            <div class="slider-label">
+                <input type="range" id="percentSlider" min="10" max="200" step="10" value="100">
+                <span id="percentValue" class="value-indicator">100%</span>
+            </div>
+        </div>
+        <div class="tool-group">
+            <span>🎨</span>
+            <select id="themeSelect"><option value="flower">🌸 花神</option><option value="space">🚀 宇宙</option><option value="candy">🍬 糖果</option><option value="forest">🌲 森林</option><option value="ocean">🌊 大海</option></select>
+        </div>
+        <div class="tool-group">
+            <span>📚 词库</span>
+            <select id="vocabListSelect"></select>
+            <button id="manageVocabBtn" class="icon-btn">✏️</button>
+        </div>
+        <div class="tool-group">
+            <button id="startGameBtn" class="primary-solid">▶ 开始</button>
+            <button id="resetGameBtn" class="icon-btn">🔄</button>
+            <button id="fullscreenBtn" class="icon-btn" title="全屏模式">⤢</button>
+        </div>
+    </div>
+
+    <div class="info-bar">
+        <div class="timer-custom">
+            <label>⏱️ 倒计时(秒)</label>
+            <input type="number" id="customTimerSec" value="75" step="5" min="30" max="180">
+        </div>
+        <div class="countdown-light" id="countdownDisplay">00:00</div>
+    </div>
+
+    <div id="playersContainer" class="players-pk-area"></div>
+</div>
+<footer>小琴调</footer>
+
+<script>
+    // ---------- 拼音与英文辅助 ----------
+    const PINYIN_PRO_AVAIL = typeof pinyinPro !== 'undefined';
+    const builtInEnDict = {
+        "一":"one","二":"two","三":"three","四":"four","五":"five","六":"six","七":"seven","八":"eight","九":"nine","十":"ten",
+        "你好":"hello","谢谢":"thank you","再见":"goodbye","对不起":"sorry","请":"please",
+        "爸爸":"father","妈妈":"mother","哥哥":"brother","姐姐":"sister","老师":"teacher",
+        "今天":"today","明天":"tomorrow","昨天":"yesterday","早上":"morning","晚上":"evening",
+        "吃饭":"eat meal","喝水":"drink water","读书":"read","走路":"walk","睡觉":"sleep",
+        "苹果":"apple","猫":"cat","狗":"dog","鸟":"bird","鱼":"fish","跑步":"run","美丽":"beautiful",
+        "香蕉":"banana","橘子":"orange","葡萄":"grape","西瓜":"watermelon","草莓":"strawberry","芒果":"mango"
+    };
+    async function autoPinyin(chineseWord) {
+        if(PINYIN_PRO_AVAIL && window.pinyinPro) {
+            try { return window.pinyinPro.pinyin(chineseWord, { toneType: 'symbol', type: 'string', separator: ' ' }); } catch(e){}
+        }
+        return chineseWord;
+    }
+    function autoEnglish(chineseWord) {
+        return builtInEnDict[chineseWord] || (chineseWord.length>1 ? "新短语" : "新词");
+    }
+
+    // ---------- 词库结构 ----------
+    let vocabThemes = {
+        "数字主题": { pairs: [
+            { left: "一", right: "one", showPinyin: true },{ left: "二", right: "two", showPinyin: true },
+            { left: "三", right: "three", showPinyin: true },{ left: "四", right: "four", showPinyin: true },
+            { left: "五", right: "five", showPinyin: true },{ left: "六", right: "six", showPinyin: true },
+            { left: "七", right: "seven", showPinyin: true },{ left: "八", right: "eight", showPinyin: true }
+        ] },
+        "日常问候": { pairs: [
+            { left: "你好", right: "hello", showPinyin: true },{ left: "谢谢", right: "thank you", showPinyin: true },
+            { left: "再见", right: "goodbye", showPinyin: true },{ left: "对不起", right: "sorry", showPinyin: true },
+            { left: "请", right: "please", showPinyin: true },{ left: "早上好", right: "good morning", showPinyin: true },
+            { left: "晚上好", right: "good evening", showPinyin: true }
+        ] },
+        "水果主题": { pairs: [
+            { left: "苹果", right: "apple", showPinyin: true },{ left: "香蕉", right: "banana", showPinyin: true },
+            { left: "橘子", right: "orange", showPinyin: true },{ left: "葡萄", right: "grape", showPinyin: true },
+            { left: "西瓜", right: "watermelon", showPinyin: true },{ left: "草莓", right: "strawberry", showPinyin: true },
+            { left: "芒果", right: "mango", showPinyin: true }
+        ] },
+        "家人主题": { pairs: [
+            { left: "爸爸", right: "father", showPinyin: true },{ left: "妈妈", right: "mother", showPinyin: true },
+            { left: "哥哥", right: "brother", showPinyin: true },{ left: "姐姐", right: "sister", showPinyin: true },
+            { left: "弟弟", right: "younger brother", showPinyin: true },{ left: "妹妹", right: "younger sister", showPinyin: true },
+            { left: "爷爷", right: "grandpa", showPinyin: true },{ left: "奶奶", right: "grandma", showPinyin: true }
+        ] },
+        "日常生活": { pairs: [
+            { left: "吃饭", right: "eat meal", showPinyin: true },{ left: "喝水", right: "drink water", showPinyin: true },
+            { left: "读书", right: "read", showPinyin: true },{ left: "睡觉", right: "sleep", showPinyin: true },
+            { left: "走路", right: "walk", showPinyin: true },{ left: "跑步", right: "run", showPinyin: true },
+            { left: "工作", right: "work", showPinyin: true },{ left: "学习", right: "study", showPinyin: true }
+        ] }
+    };
+    let currentThemeName = "日常生活";
+    let currentVocab = [];
+
+    async function refreshVocabFromTheme(themeName) {
+        const theme = vocabThemes[themeName];
+        if(!theme) return;
+        let newVocab = [];
+        for(let pair of theme.pairs) {
+            let pinyin = await autoPinyin(pair.left);
+            newVocab.push({ word: pair.left, pinyin: pinyin, meaning: pair.right, showPinyin: pair.showPinyin });
+        }
+        currentVocab = newVocab;
+        currentThemeName = themeName;
+        updatePreview();
+    }
+    function updateVocabSelect() {
+        const select = document.getElementById('vocabListSelect');
+        select.innerHTML = '';
+        Object.keys(vocabThemes).forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            if(name === currentThemeName) opt.selected = true;
+            select.appendChild(opt);
+        });
+    }
+    document.getElementById('vocabListSelect').addEventListener('change', async (e) => {
+        if(gameActive) { alert("请先重置游戏再切换词库。"); return; }
+        await refreshVocabFromTheme(e.target.value);
+        displayReadyMessage();
+        resetGameUI(false);
+    });
+
+    // ---------- 词库管理器 (省略细节，保持原有功能) ----------
+    function openVocabManager() {
+        let workingThemes = JSON.parse(JSON.stringify(vocabThemes));
+        let currentEditTheme = currentThemeName;
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        function renderEditor() {
+            const themeContainer = modal.querySelector('.theme-list-buttons');
+            themeContainer.innerHTML = '';
+            Object.keys(workingThemes).forEach(tname => {
+                const btn = document.createElement('button');
+                btn.className = 'theme-btn' + (tname === currentEditTheme ? ' active' : '');
+                btn.textContent = tname;
+                btn.addEventListener('click', () => {
+                    currentEditTheme = tname;
+                    renderEditor();
+                });
+                themeContainer.appendChild(btn);
+            });
+            const addThemeBtn = document.createElement('button');
+            addThemeBtn.className = 'theme-btn';
+            addThemeBtn.textContent = '+ 新建主题';
+            addThemeBtn.addEventListener('click', () => {
+                let newName = prompt("新主题名称", "我的主题");
+                if(newName && !workingThemes[newName]) {
+                    workingThemes[newName] = { pairs: [{ left: "示例词", right: "example", showPinyin: true }] };
+                    currentEditTheme = newName;
+                    renderEditor();
+                } else alert("名称已存在或无效");
+            });
+            themeContainer.appendChild(addThemeBtn);
+            const pairs = workingThemes[currentEditTheme]?.pairs || [];
+            const leftContainer = modal.querySelector('#leftPairsContainer');
+            const rightContainer = modal.querySelector('#rightPairsContainer');
+            leftContainer.innerHTML = ''; rightContainer.innerHTML = '';
+            pairs.forEach((pair, idx) => {
+                const leftRow = document.createElement('div');
+                leftRow.className = 'pair-row';
+                const leftTextarea = document.createElement('textarea');
+                leftTextarea.rows = 1;
+                leftTextarea.value = pair.left;
+                leftTextarea.placeholder = "中文词语";
+                leftTextarea.style.width = '55%';
+                leftTextarea.addEventListener('change', () => { workingThemes[currentEditTheme].pairs[idx].left = leftTextarea.value; });
+                leftRow.appendChild(leftTextarea);
+                const pinyinSwitchBtn = document.createElement('button');
+                pinyinSwitchBtn.className = 'pinyin-switch-btn' + (pair.showPinyin ? ' active' : '');
+                pinyinSwitchBtn.textContent = pair.showPinyin ? '🔊 显示拼音' : '🔇 隐藏拼音';
+                pinyinSwitchBtn.addEventListener('click', () => {
+                    workingThemes[currentEditTheme].pairs[idx].showPinyin = !workingThemes[currentEditTheme].pairs[idx].showPinyin;
+                    renderEditor();
+                });
+                leftRow.appendChild(pinyinSwitchBtn);
+                const delBtn = document.createElement('button');
+                delBtn.textContent = '🗑️';
+                delBtn.addEventListener('click', () => {
+                    workingThemes[currentEditTheme].pairs.splice(idx, 1);
+                    renderEditor();
+                });
+                leftRow.appendChild(delBtn);
+                leftContainer.appendChild(leftRow);
+                const rightRow = document.createElement('div');
+                rightRow.className = 'pair-row';
+                const rightInput = document.createElement('input');
+                rightInput.value = pair.right;
+                rightInput.placeholder = "英文 / 拼音";
+                rightInput.addEventListener('change', () => { workingThemes[currentEditTheme].pairs[idx].right = rightInput.value; });
+                rightRow.appendChild(rightInput);
+                const autoEnBtn = document.createElement('button');
+                autoEnBtn.textContent = '✨自动英文';
+                autoEnBtn.addEventListener('click', async () => {
+                    let ch = workingThemes[currentEditTheme].pairs[idx].left;
+                    if(ch) { rightInput.value = autoEnglish(ch); workingThemes[currentEditTheme].pairs[idx].right = rightInput.value; }
+                    else alert("请先填写中文");
+                });
+                const autoPyBtn = document.createElement('button');
+                autoPyBtn.textContent = '🔊自动拼音';
+                autoPyBtn.addEventListener('click', async () => {
+                    let ch = workingThemes[currentEditTheme].pairs[idx].left;
+                    if(ch) {
+                        let py = await autoPinyin(ch);
+                        rightInput.value = py;
+                        workingThemes[currentEditTheme].pairs[idx].right = py;
+                    } else alert("请先填写中文");
+                });
+                rightRow.appendChild(autoEnBtn);
+                rightRow.appendChild(autoPyBtn);
+                rightContainer.appendChild(rightRow);
+            });
+            const addLeftBtn = document.createElement('button');
+            addLeftBtn.className = 'auto-btn';
+            addLeftBtn.textContent = '+ 添加配对';
+            addLeftBtn.addEventListener('click', () => {
+                workingThemes[currentEditTheme].pairs.push({ left: "", right: "", showPinyin: true });
+                renderEditor();
+            });
+            leftContainer.appendChild(addLeftBtn);
+            const leftBatchDiv = modal.querySelector('.left-batch-buttons');
+            leftBatchDiv.innerHTML = '';
+            const importBtn = document.createElement('button');
+            importBtn.className = 'auto-btn';
+            importBtn.textContent = '📋 批量导入左侧中文';
+            importBtn.addEventListener('click', () => {
+                const pasteArea = modal.querySelector('#pasteArea');
+                pasteArea.style.display = pasteArea.style.display === 'none' ? 'block' : 'none';
+            });
+            leftBatchDiv.appendChild(importBtn);
+            const showAllBtn = document.createElement('button');
+            showAllBtn.className = 'auto-btn';
+            showAllBtn.style.background = '#7c9a6e';
+            showAllBtn.style.color = 'white';
+            showAllBtn.textContent = '🔊 一键全部显示拼音';
+            showAllBtn.addEventListener('click', () => {
+                let pairs = workingThemes[currentEditTheme].pairs;
+                for(let i=0; i<pairs.length; i++) pairs[i].showPinyin = true;
+                renderEditor();
+            });
+            leftBatchDiv.appendChild(showAllBtn);
+            const hideAllBtn = document.createElement('button');
+            hideAllBtn.className = 'auto-btn';
+            hideAllBtn.style.background = '#cdb891';
+            hideAllBtn.textContent = '🔇 一键全部隐藏拼音';
+            hideAllBtn.addEventListener('click', () => {
+                let pairs = workingThemes[currentEditTheme].pairs;
+                for(let i=0; i<pairs.length; i++) pairs[i].showPinyin = false;
+                renderEditor();
+            });
+            leftBatchDiv.appendChild(hideAllBtn);
+        }
+        modal.innerHTML = `
+            <div class="modal-card">
+                <h3>📚 词库管理 · 左右配对</h3>
+                <div class="theme-list-buttons"></div>
+                <div class="pair-editor">
+                    <div class="pair-column">
+                        <h4>📖 中文词语 (左侧) <span style="font-size:0.7rem;">🔊按钮控制本词拼音</span></h4>
+                        <div id="leftPairsContainer"></div>
+                        <div class="left-batch-buttons"></div>
+                    </div>
+                    <div class="pair-column">
+                        <h4>🔗 配对内容 (右侧)</h4>
+                        <div id="rightPairsContainer"></div>
+                        <div class="auto-btn" id="batchAutoEn" style="margin-top:8px;">✨ 批量自动英文 (为所有右侧空置项生成)</div>
+                        <div class="auto-btn" id="batchAutoPy" style="margin-top:5px;">🔊 批量自动拼音 (为所有右侧空置项生成)</div>
+                        <div class="batch-area">
+                            <div id="pasteArea" style="display:none; margin-top:8px;">
+                                <textarea id="bulkLeftText" class="batch-textarea" placeholder="每行一个中文词语，例如：&#10;苹果&#10;香蕉&#10;橘子"></textarea>
+                                <button id="importLeftOnlyBtn" class="auto-btn">导入左侧并清空右侧 (拼音开关默认开启)</button>
+                                <button id="generateEnFromLeftBtn" class="auto-btn">✨ 为所有右侧生成英文</button>
+                                <button id="generatePyFromLeftBtn" class="auto-btn">🔊 为所有右侧生成拼音</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 0.8rem; justify-content: flex-end;">
+                    <button id="saveVocabBtn" class="primary-solid">保存并应用</button>
+                    <button id="closeModalBtn" class="icon-btn">取消</button>
+                </div>
+                <p style="font-size:0.7rem; margin-top:0.6rem;">✨ 左侧每个词可独立控制是否显示拼音。右侧可手动填写或自动生成英文/拼音。</p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        renderEditor();
+        modal.querySelector('#batchAutoEn').addEventListener('click', async () => {
+            let pairs = workingThemes[currentEditTheme].pairs;
+            for(let i=0; i<pairs.length; i++) {
+                if(pairs[i].left && !pairs[i].right) pairs[i].right = autoEnglish(pairs[i].left);
+            }
+            renderEditor();
+        });
+        modal.querySelector('#batchAutoPy').addEventListener('click', async () => {
+            let pairs = workingThemes[currentEditTheme].pairs;
+            for(let i=0; i<pairs.length; i++) {
+                if(pairs[i].left) {
+                    let py = await autoPinyin(pairs[i].left);
+                    pairs[i].right = py;
+                }
+            }
+            renderEditor();
+        });
+        const pasteDiv = modal.querySelector('#pasteArea');
+        modal.querySelector('#importLeftOnlyBtn').addEventListener('click', () => {
+            const raw = modal.querySelector('#bulkLeftText').value;
+            const lines = raw.split(/\r?\n/);
+            const newPairs = [];
+            for(let line of lines) {
+                line = line.trim();
+                if(line === "") continue;
+                newPairs.push({ left: line, right: "", showPinyin: true });
+            }
+            if(newPairs.length) {
+                workingThemes[currentEditTheme].pairs = newPairs;
+                renderEditor();
+                modal.querySelector('#bulkLeftText').value = '';
+                pasteDiv.style.display = 'none';
+            } else alert("未检测到有效中文词语，请每行一个。");
+        });
+        modal.querySelector('#generateEnFromLeftBtn').addEventListener('click', async () => {
+            let pairs = workingThemes[currentEditTheme].pairs;
+            for(let i=0; i<pairs.length; i++) {
+                if(pairs[i].left) pairs[i].right = autoEnglish(pairs[i].left);
+            }
+            renderEditor();
+        });
+        modal.querySelector('#generatePyFromLeftBtn').addEventListener('click', async () => {
+            let pairs = workingThemes[currentEditTheme].pairs;
+            for(let i=0; i<pairs.length; i++) {
+                if(pairs[i].left) {
+                    let py = await autoPinyin(pairs[i].left);
+                    pairs[i].right = py;
+                }
+            }
+            renderEditor();
+        });
+        modal.querySelector('#saveVocabBtn').addEventListener('click', async () => {
+            vocabThemes = workingThemes;
+            await refreshVocabFromTheme(currentEditTheme);
+            updateVocabSelect();
+            displayReadyMessage();
+            resetGameUI(false);
+            document.body.removeChild(modal);
+        });
+        modal.querySelector('#closeModalBtn').addEventListener('click', () => document.body.removeChild(modal));
+    }
+
+    // ---------- 游戏核心逻辑 ----------
+    let gameActive = false;
+    let timerInterval = null;
+    let remainingSeconds = 75;
+    let playersData = [];
+    let gameStartTime = null;
+    let currentPlayerCount = 2;
+    let currentPercent = 100;
+
+    function getVocabByPercent(percent, fullVocab) {
+        if (!fullVocab.length) return [];
+        let targetCount = Math.ceil(fullVocab.length * percent / 100);
+        if (targetCount < 1) targetCount = 1;
+        const result = [];
+        for (let i = 0; i < targetCount; i++) {
+            result.push(fullVocab[i % fullVocab.length]);
+        }
+        return result;
+    }
+
+    function generateCardPairs(usedVocab) {
+        let pairs = [];
+        for (let item of usedVocab) {
+            let groupKey = crypto.randomUUID();
+            let frontContent = { word: item.word, pinyin: item.pinyin, showPinyin: item.showPinyin };
+            let backContent = { meaning: item.meaning };
+            pairs.push({ id: groupKey, groupKey: groupKey, front: frontContent, back: backContent });
+        }
+        let cards = [];
+        for(let pair of pairs) {
+            cards.push({ cardId: pair.id+'_F', groupKey: pair.groupKey, display: pair.front, matched: false, cardType: 'front' });
+            cards.push({ cardId: pair.id+'_B', groupKey: pair.groupKey, display: pair.back, matched: false, cardType: 'back' });
+        }
+        for(let i=cards.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [cards[i],cards[j]]=[cards[j],cards[i]]; }
+        const totalPairs = cards.length / 2;
+        return { cards, totalPairs };
+    }
+
+    function updatePreview() {
+        if (gameActive) return;
+        const usedVocab = getVocabByPercent(currentPercent, currentVocab);
+        let previewCards = [];
+        for (let item of usedVocab) {
+            previewCards.push({ type: 'chinese', data: item });
+            previewCards.push({ type: 'match', meaning: item.meaning });
+        }
+        for(let i=previewCards.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [previewCards[i],previewCards[j]]=[previewCards[j],previewCards[i]]; }
+        for(let p of playersData) {
+            if(p.grid && !p.gameData) {
+                const grid = p.grid;
+                grid.innerHTML = '';
+                previewCards.forEach(card => {
+                    const div = document.createElement('div');
+                    div.className = 'preview-card';
+                    if(card.type === 'chinese') {
+                        if(card.data.showPinyin && card.data.pinyin) {
+                            div.innerHTML = `<div class="preview-pinyin">${card.data.pinyin}</div><div class="preview-word">${card.data.word}</div>`;
+                        } else {
+                            div.innerHTML = `<div class="preview-word">${card.data.word}</div>`;
+                        }
+                    } else {
+                        div.innerHTML = `<div class="preview-word" style="text-transform:lowercase;">${card.meaning}</div>`;
+                    }
+                    grid.appendChild(div);
+                });
+                const statusSpan = p.dom.querySelector('.player-status');
+                if(statusSpan) statusSpan.innerHTML = `⏳ 预览模式 (共${previewCards.length}张卡片)`;
+            }
+        }
+    }
+
+    function renderCardElement(cardData) {
+        const div = document.createElement('div');
+        div.className = 'card';
+        const disp = cardData.display;
+        if(disp.pinyin !== undefined) {
+            if(disp.showPinyin && disp.pinyin) {
+                div.innerHTML = `<div class="pinyin-part">${disp.pinyin}</div><div class="word-part">${disp.word}</div>`;
+            } else {
+                div.innerHTML = `<div class="word-part">${disp.word}</div>`;
+            }
+        } else if(disp.meaning !== undefined) {
+            div.innerHTML = `<div class="word-part" style="text-transform:lowercase;">${disp.meaning}</div>`;
+        }
+        return div;
+    }
+
+    function renderPlayerGame(player) {
+        const { cards, totalPairs } = player.gameData;
+        const grid = player.grid;
+        grid.innerHTML = '';
+        player.cardElements = [];
+        player.matchedCount = 0;
+        cards.forEach((card, idx) => {
+            const cardDiv = renderCardElement(card);
+            if(card.matched) cardDiv.classList.add('matched');
+            cardDiv.dataset.index = idx;
+            cardDiv.addEventListener('click', (e) => { if(gameActive && !player.finished) handleCardClick(player, idx); });
+            grid.appendChild(cardDiv);
+            player.cardElements.push(cardDiv);
+        });
+        player.totalPairs = totalPairs;
+        player.matchedCount = cards.filter(c=>c.matched).length/2;
+        player.selectedCardIndex = null;
+    }
+
+    function handleCardClick(player, idx) {
+        if(!gameActive) return;
+        const cards = player.gameData.cards;
+        if(cards[idx].matched) return;
+        if(player.selectedCardIndex === idx) return;
+        if(player.selectedCardIndex !== null) {
+            const first = cards[player.selectedCardIndex];
+            const second = cards[idx];
+            if(first.groupKey === second.groupKey && first.cardType !== second.cardType) {
+                first.matched = true; second.matched = true;
+                player.matchedCount++;
+                const el1 = player.cardElements[player.selectedCardIndex];
+                const el2 = player.cardElements[idx];
+                el1.classList.add('matched'); el2.classList.add('matched');
+                playPopSound();
+                player.selectedCardIndex = null;
+                if(player.matchedCount === player.totalPairs && !player.finished) finishPlayer(player);
+            } else {
+                if(player.cardElements[player.selectedCardIndex]) player.cardElements[player.selectedCardIndex].classList.remove('selected');
+                player.selectedCardIndex = null;
+            }
+        } else {
+            player.cardElements.forEach(el=>el.classList.remove('selected'));
+            player.selectedCardIndex = idx;
+            player.cardElements[idx].classList.add('selected');
+        }
+    }
+
+    function finishPlayer(player) {
+        if(player.finished) return;
+        player.finished = true;
+        player.finishTime = (Date.now() - gameStartTime) / 1000;
+        updateMedals();
+        const statusSpan = player.dom.querySelector('.player-status');
+        if(statusSpan) statusSpan.innerHTML = `✅ 完成 ${player.finishTime.toFixed(1)}秒`;
+        // 检查是否所有玩家完成
+        if(playersData.every(p => p.finished)) {
+            // 停止倒计时并归零
+            if(timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+            gameActive = false;
+            document.getElementById('countdownDisplay').innerText = "00:00";
+            showHeroBoard();
+        }
+    }
+
+    function updateMedals() {
+        let finished = playersData.filter(p=>p.finished).map(p=>({...p})).sort((a,b)=>a.finishTime - b.finishTime);
+        playersData.forEach(p => {
+            const oldContainer = p.dom.querySelector('.medal-container');
+            if(oldContainer) oldContainer.remove();
+        });
+        finished.forEach((p, idx) => {
+            let medalSymbol = '';
+            if(idx === 0) medalSymbol = '🥇';
+            else if(idx === 1) medalSymbol = '🥈';
+            else if(idx === 2) medalSymbol = '🥉';
+            if(medalSymbol && p.finished) {
+                const container = document.createElement('div');
+                container.className = 'medal-container';
+                const medalSpan = document.createElement('span');
+                medalSpan.className = 'medal';
+                medalSpan.innerText = medalSymbol;
+                container.appendChild(medalSpan);
+                const header = p.dom.querySelector('.player-header');
+                header.insertAdjacentElement('afterend', container);
+            }
+        });
+    }
+
+    function showHeroBoard() {
+        let finished = playersData.filter(p=>p.finished).map(p=>({name:p.name, time:p.finishTime})).sort((a,b)=>a.time-b.time);
+        if(finished.length === 0) return;
+        const modal = document.createElement('div');
+        modal.className = 'hero-modal';
+        modal.innerHTML = `
+            <div class="hero-card">
+                <h2>🏆 英雄榜 🏆</h2>
+                ${finished.map((p,i)=>{
+                    let medal = '';
+                    if(i===0) medal = '🥇';
+                    else if(i===1) medal = '🥈';
+                    else if(i===2) medal = '🥉';
+                    else medal = `${i+1}.`;
+                    return `<div class="rank-item"><span class="rank-medal">${medal}</span><span>${p.name}</span><span>${p.time.toFixed(1)} 秒</span></div>`;
+                }).join('')}
+                <button id="closeHeroBtn" class="primary-solid" style="margin-top:1rem;">关闭</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.querySelector('#closeHeroBtn').addEventListener('click',()=>modal.remove());
+    }
+
+    function startTimer(limitSec) {
+        if(timerInterval) clearInterval(timerInterval);
+        remainingSeconds = limitSec;
+        document.getElementById('countdownDisplay').innerText = formatTime(remainingSeconds);
+        timerInterval = setInterval(() => {
+            if(!gameActive) return;
+            if(remainingSeconds <= 1) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                gameActive = false;
+                document.getElementById('countdownDisplay').innerText = "00:00";
+                // 如果所有玩家尚未完成，显示排行榜
+                if(!playersData.every(p => p.finished)) {
+                    showHeroBoard();
+                }
+            } else {
+                remainingSeconds--;
+                document.getElementById('countdownDisplay').innerText = formatTime(remainingSeconds);
+            }
+        }, 1000);
+    }
+
+    function formatTime(sec) { let m=Math.floor(sec/60); let s=sec%60; return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
+
+    function displayReadyMessage() {
+        for(let p of playersData) {
+            if(p.grid) p.grid.innerHTML = '<div class="ready-message"></div>';
+            const statusSpan = p.dom.querySelector('.player-status');
+            if(statusSpan) statusSpan.innerHTML = '⏳ 等待开始';
+            const medalContainer = p.dom.querySelector('.medal-container');
+            if(medalContainer) medalContainer.remove();
+        }
+        updatePreview();
+    }
+
+    function buildPlayersUI() {
+        playersContainer.innerHTML = '';
+        playersData = [];
+        for(let i=0;i<currentPlayerCount;i++) {
+            const defaultName = `选手${i+1}`;
+            const div = document.createElement('div');
+            div.className = 'player-card';
+            div.innerHTML = `
+                <div class="player-header">
+                    <span class="player-name-editable">${defaultName}</span>
+                </div>
+                <div class="player-status">⏳ 等待开始</div>
+                <div class="game-grid"><div class="ready-message"></div></div>
+            `;
+            playersContainer.appendChild(div);
+            const nameSpan = div.querySelector('.player-name-editable');
+            nameSpan.addEventListener('click', () => {
+                let newName = prompt("输入昵称", nameSpan.innerText);
+                if(newName && newName.trim()) nameSpan.innerText = newName.slice(0,12);
+                const pObj = playersData.find(p=>p.dom===div);
+                if(pObj) pObj.name = nameSpan.innerText;
+            });
+            playersData.push({
+                id:i, name:defaultName, finished:false, finishTime:null, dom:div, grid:div.querySelector('.game-grid'),
+                gameData:null, cardElements:[], selectedCardIndex:null, matchedCount:0, totalPairs:0
+            });
+        }
+        updatePreview();
+    }
+
+    async function startGame() {
+        if(gameActive) endGame();
+        if(!currentVocab.length) { alert("当前词库为空，请前往词库管理添加内容。"); return; }
+        let customSec = parseInt(document.getElementById('customTimerSec').value);
+        let timeLimit = isNaN(customSec) ? 75 : Math.min(300, Math.max(20, customSec));
+        const usedVocab = getVocabByPercent(currentPercent, currentVocab);
+        for(let p of playersData) {
+            const {cards, totalPairs} = generateCardPairs(usedVocab);
+            p.gameData = {cards, totalPairs};
+            p.finished = false; p.finishTime = null; p.selectedCardIndex = null; p.matchedCount=0;
+            renderPlayerGame(p);
+            const statusSpan = p.dom.querySelector('.player-status');
+            statusSpan.innerHTML = `🎴 配对 0/${totalPairs}`;
+            const medalContainer = p.dom.querySelector('.medal-container');
+            if(medalContainer) medalContainer.remove();
+        }
+        gameActive = true;
+        gameStartTime = Date.now();
+        startTimer(timeLimit);
+        const intervalUpdate = setInterval(()=>{
+            if(!gameActive) { clearInterval(intervalUpdate); return; }
+            for(let p of playersData) {
+                if(!p.finished && p.gameData){
+                    let matchedPairs = p.gameData.cards.filter(c=>c.matched).length/2;
+                    if(matchedPairs !== p.matchedCount) p.matchedCount = matchedPairs;
+                    const statusSpan = p.dom.querySelector('.player-status');
+                    if(statusSpan && !p.finished) statusSpan.innerHTML = `🎴 配对 ${p.matchedCount}/${p.totalPairs}`;
+                    if(p.matchedCount === p.totalPairs && !p.finished) finishPlayer(p);
+                }
+            }
+        }, 180);
+        window._rankInterval = intervalUpdate;
+    }
+    function endGame() { if(timerInterval) clearInterval(timerInterval); gameActive = false; if(window._rankInterval) clearInterval(window._rankInterval); }
+    function resetGameUI(resetCards=true) {
+        if(timerInterval) clearInterval(timerInterval);
+        if(window._rankInterval) clearInterval(window._rankInterval);
+        gameActive = false;
+        for(let p of playersData) {
+            p.finished = false;
+            p.gameData = null;
+            if(p.grid) {
+                if(resetCards) p.grid.innerHTML = '<div class="ready-message"></div>';
+                else displayReadyMessage();
+            }
+            const statusSpan = p.dom.querySelector('.player-status');
+            if(statusSpan) statusSpan.innerHTML = '⏳ 等待开始';
+            const medalContainer = p.dom.querySelector('.medal-container');
+            if(medalContainer) medalContainer.remove();
+        }
+        document.getElementById('countdownDisplay').innerText = "00:00";
+        updatePreview();
+    }
+    function playPopSound() { try { const a = new AudioContext(); const o=a.createOscillator(); const g=a.createGain(); o.connect(g); g.connect(a.destination); o.frequency.value=880; g.gain.value=0.15; o.type='sine'; o.start(); g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime+0.25); o.stop(a.currentTime+0.22); a.resume(); } catch(e){} }
+
+    // 事件绑定
+    const playerSlider = document.getElementById('playerSlider');
+    const percentSlider = document.getElementById('percentSlider');
+    const percentValue = document.getElementById('percentValue');
+    playerSlider.addEventListener('input',(e)=>{ if(!gameActive){ currentPlayerCount=parseInt(e.target.value); document.getElementById('playerValue').innerText=currentPlayerCount+'人'; buildPlayersUI(); } else alert("请先重置游戏再修改人数。"); });
+    percentSlider.addEventListener('input', (e) => {
+        if(!gameActive) {
+            currentPercent = parseInt(e.target.value);
+            percentValue.innerText = currentPercent + '%';
+            updatePreview();
+        } else alert("请先重置游戏再修改词汇比例。");
+    });
+    document.getElementById('manageVocabBtn').addEventListener('click', openVocabManager);
+    document.getElementById('startGameBtn').addEventListener('click', startGame);
+    document.getElementById('resetGameBtn').addEventListener('click', ()=>{ resetGameUI(true); buildPlayersUI(); });
+    document.getElementById('fullscreenBtn').addEventListener('click',()=>{ if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); });
+    document.getElementById('themeSelect').addEventListener('change',(e)=>{ document.body.className=''; document.body.classList.add(`theme-${e.target.value}`); });
+    (async () => {
+        await refreshVocabFromTheme("日常生活");
+        updateVocabSelect();
+        buildPlayersUI();
+        document.body.classList.add('theme-flower');
+        currentPercent = 100;
+        percentSlider.value = 100;
+        percentValue.innerText = '100%';
+        updatePreview();
+    })();
+</script>
+</body>
+</html>
