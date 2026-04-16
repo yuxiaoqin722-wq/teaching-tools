@@ -66,5 +66,14 @@
       "汉字"
     ],
     "author": "xiaoqin"
+  },
+  {
+    "title": "词语消消乐 - PK版",
+    "path": "tools/ciyuxiaoxiaole.html",
+    "cover": "assets/ciyuxiaoxiaole.png",
+    "tags": [
+      "词语"
+    ],
+    "author": "xiaoqin"
   }
 ]
