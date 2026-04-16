@@ -139,7 +139,7 @@
         .task-side-item.active-task {
             border-color: #A3B18A;
             background: #F1F0E2;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .task-emoji {
@@ -294,6 +294,12 @@
             font-size: 1.5rem;
             color: #A27B5C;
             margin-bottom: 8px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .pinyin-area:hover {
+            transform: scale(1.02);
+            text-shadow: 0 0 2px rgba(162, 123, 92, 0.3);
         }
 
         .hint-hanzi {
@@ -659,6 +665,21 @@
         } catch(e) { return word; }
     }
 
+    // 朗读功能 (使用Web Speech API)
+    function speakWord(text) {
+        if (!window.speechSynthesis) {
+            console.warn("浏览器不支持语音合成");
+            return;
+        }
+        // 取消任何正在进行的朗读，避免重叠
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'zh-CN';       // 中文
+        utterance.rate = 0.9;            // 语速稍慢
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+    }
+
     // 增强英文翻译字典
     function generateSimpleEnglish(hanzi) {
         const dict = {
@@ -752,6 +773,10 @@
             pinyinSpan.className = 'pinyin-area';
             pinyinSpan.innerText = item.pinyin;
             pinyinSpan.id = `pinyin-${idx}`;
+            // 添加鼠标悬停朗读功能: 朗读对应的汉字
+            pinyinSpan.addEventListener('mouseenter', (e) => {
+                speakWord(item.hanzi);
+            });
             card.appendChild(pinyinSpan);
             if (mode === 'pinyin+hanzi' || mode === 'full') {
                 const hanziHint = document.createElement('div');
