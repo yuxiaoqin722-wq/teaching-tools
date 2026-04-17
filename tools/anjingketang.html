@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>安静课堂 · 声控生态园</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #d9e2e8;
+            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .app {
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,240,0.3);
+        }
+
+        /* 主题动态背景 */
+        .theme-desert { background: linear-gradient(135deg, #f7e3b2, #e2c28b); }
+        .theme-space { background: linear-gradient(135deg, #b1d4e0, #6a9fb5); color: #1f2f3a; }
+        .theme-ocean { background: linear-gradient(135deg, #b3e0f5, #7fc1c5); }
+        .theme-city { background: linear-gradient(135deg, #cfdfe6, #b0c4ce); }
+
+        .main-panel {
+            padding: 1.5rem 1.8rem 1.8rem;
+        }
+
+        .title-box {
+            text-align: center;
+            margin-bottom: 1.2rem;
+        }
+        .title-box h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #2c5a2e, #5b8c5a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: none;
+        }
+        .title-box p {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tool-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .tool-group.center {
+            justify-content: center;
+            flex: 1;
+        }
+        .tool-group.right {
+            justify-content: flex-end;
+        }
+
+        button {
+            background: rgba(30, 30, 30, 0.65);
+            backdrop-filter: blur(4px);
+            border: none;
+            padding: 6px 14px;
+            border-radius: 60px;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: 0.15s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        button:hover {
+            transform: scale(0.96);
+            background: rgba(0, 0, 0, 0.8);
+        }
+        .btn-primary { background: #2c7a47; }
+        .btn-danger { background: #bc6c25; }
+
+        .dot-sim {
+            display: inline-flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.35);
+            backdrop-filter: blur(2px);
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+        }
+        .dot-quiet { background: #2e7d64; box-shadow: 0 0 0 1px #c8e6df; }
+        .dot-noise { background: #c45c2c; box-shadow: 0 0 0 1px #ffe0b5; }
+        .dot:hover { transform: scale(1.1); filter: brightness(1.1); }
+
+        .garden-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 22px;
+            margin-top: 8px;
+        }
+        .planting-area {
+            flex: 3;
+            min-height: 380px;
+            background: rgba(235, 235, 200, 0.3);
+            backdrop-filter: blur(6px);
+            border-radius: 32px;
+            padding: 18px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+            position: relative;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,210,0.5);
+        }
+        .plant-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 260px;
+        }
+        .plant-item {
+            font-size: 2.2rem;
+            background: rgba(245, 245, 200, 0.5);
+            border-radius: 28px;
+            padding: 6px 12px;
+            transition: 0.05s linear;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .empty-land {
+            width: 100%;
+            text-align: center;
+            padding: 40px 0;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .empty-land .chinese {
+            font-size: 1.1rem;
+            font-family: 'Segoe UI', 'Noto Sans CJK SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            color: #3b2a1f;
+            margin-bottom: 8px;
+        }
+        .empty-land .english {
+            font-size: 0.9rem;
+            font-family: 'Segoe UI', 'Georgia', 'Times New Roman', serif;
+            color: #5c4b32;
+            font-style: italic;
+            letter-spacing: 0.3px;
+        }
+
+        .stats-card {
+            flex: 1.2;
+            background: rgba(250, 250, 240, 0.65);
+            backdrop-filter: blur(10px);
+            border-radius: 32px;
+            padding: 20px;
+            min-width: 240px;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,250,210,0.8);
+        }
+        .stat-block {
+            background: rgba(245, 240, 220, 0.7);
+            border-radius: 28px;
+            padding: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #2c3e2b;
+        }
+        .stat-label small {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: normal;
+            opacity: 0.75;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: #1f4f2b;
+        }
+        .progress-bg {
+            background: #ddd3bc;
+            border-radius: 20px;
+            height: 8px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #4c9f70;
+            width: 0%;
+            height: 100%;
+        }
+        .theme-icon-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 1.3rem;
+            font-weight: 500;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .mode-badge {
+            background: #e9c46a;
+            color: #2f3e2e;
+            border-radius: 60px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .signature {
+            text-align: right;
+            font-family: '隶书', '华文隶书', cursive;
+            font-size: 0.7rem;
+            color: #6b5a3e;
+            background: rgba(210, 190, 150, 0.3);
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 30px;
+            margin-top: 18px;
+            float: right;
+        }
+
+        @media (max-width: 780px) {
+            .main-panel { padding: 1rem; }
+            .plant-item { font-size: 1.6rem; padding: 3px 8px; }
+            .stat-number { font-size: 1.5rem; }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top:0; left:0;
+            width:100%; height:100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: #fef9e6;
+            color: #2d3e2b;
+            padding: 1.5rem;
+            border-radius: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 60px;
+            border: 1px solid #ccc;
+            margin: 5px 0;
+        }
+        .theme-bg-group {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 20px;
+        }
+        .theme-bg-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .sound-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            background: rgba(0,0,0,0.05);
+            padding: 8px 12px;
+            border-radius: 40px;
+        }
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: #ccc;
+            border-radius: 30px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .toggle-switch.active {
+            background: #4c9f70;
+        }
+        .toggle-switch::after {
+            content: "";
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            transition: 0.2s;
+        }
+        .toggle-switch.active::after {
+            left: 21px;
+        }
+        .fullscreen .app {
+            max-width: 100%;
+            border-radius: 0;
+        }
+        .fullscreen body {
+            padding: 0;
+        }
+        .fullscreen .main-panel {
+            padding: 1rem;
+        }
+        .bg-img, .bg-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 32px;
+            z-index: -1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<div class="app" id="appRoot">
+    <div class="main-panel">
+        <div class="title-box">
+            <h1>🌿 安静课堂 · Quiet Classroom</h1>
+            <p>音量决定生态 | Volume decides ecosystem</p>
+        </div>
+
+        <div class="toolbar">
+            <div class="tool-group">
+                <button id="startBtn" class="btn-primary">▶ 开始</button>
+                <button id="stopBtn">⏹️ 停止</button>
+                <button id="resetBtn">🔄 重置</button>
+            </div>
+            <div class="tool-group center">
+                <button id="themeDesert" class="theme-btn">🏜️ 沙漠</button>
+                <button id="themeSpace" class="theme-btn">🚀 太空</button>
+                <button id="themeOcean" class="theme-btn">🌊 海洋</button>
+                <button id="themeCity" class="theme-btn">🏙️ 城市</button>
+            </div>
+            <div class="tool-group right">
+                <button id="fullscreenBtn" title="全屏模式">⛶</button>
+                <button id="settingsBtn">⚙️ 设置</button>
+                <button id="historyBtn">📜 历史</button>
+                <button id="modeToggleBtn" style="background:#9b59b6;">🔇 安静模式</button>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+            <div class="dot-sim">
+                <div class="dot dot-quiet" id="simQuietDot" title="模拟安静环境">🤫</div>
+                <div class="dot dot-noise" id="simNoiseDot" title="模拟嘈杂环境">📢</div>
+            </div>
+        </div>
+
+        <div class="garden-layout">
+            <div class="planting-area" id="plantingArea">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                    <span id="gardenTitle">🏜️ 沙漠生态园</span>
+                    <span id="modeLabel" class="mode-badge">安静模式</span>
+                </div>
+                <div id="plantGrid" class="plant-grid"></div>
+                <div id="bgContainer" style="position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; border-radius: 32px; overflow:hidden; z-index:-1;"></div>
+            </div>
+
+            <div class="stats-card">
+                <div class="stat-block">
+                    <div class="stat-label">🎤 实时分贝 / 阈值<br><small>Real-time dB / Threshold</small></div>
+                    <div class="stat-number"><span id="currentDB">0</span> / <span id="thresholdDB">50</span></div>
+                    <div class="progress-bg"><div class="progress-fill" id="dbFill" style="width:0%"></div></div>
+                </div>
+
+                <div class="stat-block">
+                    <div class="stat-label" id="themeStatLabel">🌱 幼苗 · 🌿 小树 · 🌳 大树<br><small>Small · Medium · Large</small></div>
+                    <div class="stat-number" id="countsDisplay">0 / 0 / 0</div>
+                    <div class="theme-icon-row" id="themeIconRow">🌱 🌿 🌳</div>
+                </div>
+
+                <div class="stat-block">
+                    <div class="stat-label">⏱️ 当前连续达标 (生长进度)<br><small>Current consecutive达标 (Growth progress)</small></div>
+                    <div class="stat-number"><span id="accumulatedTime">0</span> /s</div>
+                    <div class="progress-bg"><div class="progress-fill" id="growthProgressFill" style="width:0%"></div></div>
+                </div>
+
+                <div class="stat-block">
+                    <div class="stat-label">🏆 累计安静/朗读总时长<br><small>Total quiet/reading time</small></div>
+                    <div class="stat-number"><span id="totalValidMin">0</span> /m</div>
+                </div>
+
+                <div class="stat-block">
+                    <div class="stat-label" id="totalPlantedLabel">📅 今日总数 (棵)<br><small>Today's total (units)</small></div>
+                    <div class="stat-number"><span id="totalLargeCount">0</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="signature">小琴调</div>
+    </div>
+</div>
+
+<!-- 设置模态框 -->
+<div id="settingsModal" class="modal">
+    <div class="modal-card">
+        <h3>⚙️ 课堂设置</h3>
+        <label>🔇 安静分贝阈值: <input type="range" id="thresholdSlider" min="10" max="100" value="50"><span id="thresholdValue">50</span></label>
+        <label>🌱 生长速度 (达标秒数/每幼苗): <input type="number" id="growthSpeedSec" value="5" min="2" max="15"></label>
+        <label>🔄 合并数量 (幼苗→小树): <input type="number" id="mergeSmall" value="3" min="2" max="8"></label>
+        <label>🔄 合并数量 (小树→大树): <input type="number" id="mergeLarge" value="2" min="2" max="6"></label>
+        <label>🥀 枯萎时间 (连续不达标秒数): <input type="number" id="wiltTimeSec" value="8" min="3" max="25"></label>
+        
+        <div class="sound-toggle">
+            <span>🎵 音效反馈</span>
+            <div id="soundToggleBtn" class="toggle-switch active" style="background:#4c9f70;"></div>
+        </div>
+
+        <div style="margin: 20px 0 10px 0; font-weight: bold;">🎬 各主题自定义背景 (视频/图片/GIF)</div>
+        
+        <!-- 沙漠主题 -->
+        <div class="theme-bg-group">
+            <label>🏜️ 沙漠主题</label>
+            <input type="file" id="videoDesert" accept="video/*" style="margin-bottom: 8px;">
+            <input type="file" id="imgDesert" accept="image/jpeg,image/png,image/gif,image/webp">
+            <small style="display:block; opacity:0.7;">视频或图片二选一，后上传的生效</small>
+        </div>
+        <div class="theme-bg-group">
+            <label>🚀 太空主题</label>
+            <input type="file" id="videoSpace" accept="video/*" style="margin-bottom: 8px;">
+            <input type="file" id="imgSpace" accept="image/jpeg,image/png,image/gif,image/webp">
+            <small style="display:block; opacity:0.7;">视频或图片二选一，后上传的生效</small>
+        </div>
+        <div class="theme-bg-group">
+            <label>🌊 海洋主题</label>
+            <input type="file" id="videoOcean" accept="video/*" style="margin-bottom: 8px;">
+            <input type="file" id="imgOcean" accept="image/jpeg,image/png,image/gif,image/webp">
+            <small style="display:block; opacity:0.7;">视频或图片二选一，后上传的生效</small>
+        </div>
+        <div class="theme-bg-group">
+            <label>🏙️ 城市主题</label>
+            <input type="file" id="videoCity" accept="video/*" style="margin-bottom: 8px;">
+            <input type="file" id="imgCity" accept="image/jpeg,image/png,image/gif,image/webp">
+            <small style="display:block; opacity:0.7;">视频或图片二选一，后上传的生效</small>
+        </div>
+        
+        <button id="closeSettingsBtn" style="margin-top: 18px; background:#5f7f5e;">保存关闭</button>
+    </div>
+</div>
+
+<!-- 历史模态框 -->
+<div id="historyModal" class="modal">
+    <div class="modal-card">
+        <h3>📜 历史种植战果</h3>
+        <div id="historyList" style="max-height: 280px; overflow-y: auto;">暂无记录</div>
+        <button id="closeHistoryBtn" style="margin-top: 15px;">关闭</button>
+    </div>
+</div>
+
+<script>
+    // ---------- 核心状态 ----------
+    let currentTheme = "desert";
+    let mode = "quiet";
+    let isMonitoring = false;
+    let seedling = 0, mid = 0, large = 0;
+    let accumulatedGoodSec = 0;
+    let nonCompliantSec = 0;
+    let totalValidAccumulated = 0;
+
+    let dbThreshold = 50;
+    let growthSpeed = 5;
+    let mergeSmall = 3;
+    let mergeLarge = 2;
+    let wiltTime = 8;
+    let soundEnabled = true;
+
+    let currentVolumeDB = 0;
+    let simulatedOverride = null;
+    let overrideTimeout = null;
+
+    let mediaStream = null, audioCtx = null, analyser = null, animationId = null;
+    let intervalTimer = null;
+    let historyRecords = [];
+
+    // 存储各主题背景资源 (图片URL 或 视频URL)
+    let themeBackgrounds = {
+        desert: { type: null, url: null },   // type: 'image' or 'video'
+        space: { type: null, url: null },
+        ocean: { type: null, url: null },
+        city: { type: null, url: null }
+    };
+
+    const themeMap = {
+        desert: { 
+            seedIcon:"🌱", midIcon:"🌿", largeIcon:"🌳", 
+            seedLabel:"幼苗", midLabel:"小树", largeLabel:"大树", 
+            unit:"棵", 
+            gardenTitle:"🏜️ 沙漠生态园",
+            emptyChinese: "🌾 土地空荡荡，保持安静/朗读让植物萌发", 
+            emptyEnglish: "Empty land, stay quiet/reading to grow plants."
+        },
+        space: { 
+            seedIcon:"✈️", midIcon:"🚀", largeIcon:"🛰️", 
+            seedLabel:"飞机", midLabel:"火箭", largeLabel:"空间站", 
+            unit:"架", 
+            gardenTitle:"🚀 太空生态园",
+            emptyChinese: "🌌 太空寂静，保持安静/朗读来发射飞行器", 
+            emptyEnglish: "Space is silent, stay quiet/reading to launch spacecraft."
+        },
+        ocean: { 
+            seedIcon:"🦐", midIcon:"🐟", largeIcon:"🐋", 
+            seedLabel:"小虾", midLabel:"小鱼", largeLabel:"鲸鱼", 
+            unit:"只", 
+            gardenTitle:"🌊 海洋生态园",
+            emptyChinese: "🐚 海洋深邃，保持安静/朗读来养育生命", 
+            emptyEnglish: "Deep ocean, stay quiet/reading to nurture life."
+        },
+        city: { 
+            seedIcon:"🏗️", midIcon:"🏠", largeIcon:"🏰", 
+            seedLabel:"地基", midLabel:"小屋", largeLabel:"别墅", 
+            unit:"栋", 
+            gardenTitle:"🏙️ 城市生态园",
+            emptyChinese: "🏗️ 城市待建，保持安静/朗读来建设楼宇", 
+            emptyEnglish: "City to be built, stay quiet/reading to construct buildings."
+        }
+    };
+
+    // DOM 元素
+    const appDiv = document.getElementById('appRoot');
+    const plantGrid = document.getElementById('plantGrid');
+    const accumulatedTimeSpan = document.getElementById('accumulatedTime');
+    const totalValidMinSpan = document.getElementById('totalValidMin');
+    const currentDBSpan = document.getElementById('currentDB');
+    const thresholdSpan = document.getElementById('thresholdDB');
+    const dbFill = document.getElementById('dbFill');
+    const growthProgressFill = document.getElementById('growthProgressFill');
+    const modeLabelSpan = document.getElementById('modeLabel');
+    const countsDisplay = document.getElementById('countsDisplay');
+    const themeIconRow = document.getElementById('themeIconRow');
+    const themeStatLabel = document.getElementById('themeStatLabel');
+    const totalPlantedLabel = document.getElementById('totalPlantedLabel');
+    const totalLargeCountSpan = document.getElementById('totalLargeCount');
+    const gardenTitleSpan = document.getElementById('gardenTitle');
+    const bgContainer = document.getElementById('bgContainer');
+
+    function updateThemeUI() {
+        const t = themeMap[currentTheme];
+        let bgClass = '';
+        if(currentTheme === 'desert') bgClass = 'theme-desert';
+        else if(currentTheme === 'space') bgClass = 'theme-space';
+        else if(currentTheme === 'ocean') bgClass = 'theme-ocean';
+        else bgClass = 'theme-city';
+        appDiv.className = `app ${bgClass}`;
+        themeStatLabel.innerHTML = `${t.seedIcon} ${t.seedLabel} · ${t.midIcon} ${t.midLabel} · ${t.largeIcon} ${t.largeLabel}<br><small>Small · Medium · Large</small>`;
+        themeIconRow.innerHTML = `${t.seedIcon} ${t.midIcon} ${t.largeIcon}`;
+        totalPlantedLabel.innerHTML = `📅 今日总数 (${t.unit})<br><small>Today's total (${t.unit})</small>`;
+        gardenTitleSpan.innerHTML = t.gardenTitle;
+        applyThemeBackground();
+        renderPlantGrid();
+        updateStatsNumbers();
+    }
+
+    function applyThemeBackground() {
+        // 清空容器
+        while (bgContainer.firstChild) {
+            bgContainer.removeChild(bgContainer.firstChild);
+        }
+        const bg = themeBackgrounds[currentTheme];
+        if (!bg || !bg.url) return;
+        
+        if (bg.type === 'image') {
+            const img = document.createElement('img');
+            img.src = bg.url;
+            img.className = 'bg-img';
+            img.style.objectFit = 'cover';
+            bgContainer.appendChild(img);
+        } else if (bg.type === 'video') {
+            const video = document.createElement('video');
+            video.src = bg.url;
+            video.autoplay = true;
+            video.loop = true;
+            video.muted = true;
+            video.className = 'bg-video';
+            video.style.objectFit = 'cover';
+            bgContainer.appendChild(video);
+            video.play().catch(e => console.log("视频自动播放被阻止"));
+        }
+    }
+
+    function setBackgroundForTheme(themeKey, type, url) {
+        // 释放旧资源
+        const old = themeBackgrounds[themeKey];
+        if (old && old.url) {
+            URL.revokeObjectURL(old.url);
+        }
+        themeBackgrounds[themeKey] = { type, url };
+        if (currentTheme === themeKey) {
+            applyThemeBackground();
+        }
+    }
+
+    function renderPlantGrid() {
+        const t = themeMap[currentTheme];
+        let items = [];
+        for(let i=0; i<seedling; i++) items.push(`<div class="plant-item">${t.seedIcon}</div>`);
+        for(let i=0; i<mid; i++) items.push(`<div class="plant-item">${t.midIcon}</div>`);
+        for(let i=0; i<large; i++) items.push(`<div class="plant-item">${t.largeIcon}</div>`);
+        if(items.length === 0) {
+            plantGrid.innerHTML = `
+                <div class="empty-land">
+                    <div class="chinese">${t.emptyChinese}</div>
+                    <div class="english">${t.emptyEnglish}</div>
+                </div>`;
+        } else {
+            plantGrid.innerHTML = items.join('');
+        }
+    }
+
+    function updateStatsNumbers() {
+        countsDisplay.innerText = `${seedling} / ${mid} / ${large}`;
+        totalLargeCountSpan.innerText = large;
+        accumulatedTimeSpan.innerText = accumulatedGoodSec;
+        let totalMinutes = Math.floor(totalValidAccumulated / 60);
+        totalValidMinSpan.innerText = totalMinutes;
+        
+        let growthPercent = (accumulatedGoodSec / growthSpeed) * 100;
+        growthProgressFill.style.width = Math.min(100, growthPercent) + '%';
+        let vol = simulatedOverride !== null ? simulatedOverride : currentVolumeDB;
+        currentDBSpan.innerText = Math.floor(vol);
+        thresholdSpan.innerText = dbThreshold;
+        let dbPercent = Math.min(100, (vol / dbThreshold) * 100);
+        dbFill.style.width = dbPercent + '%';
+        let modeText = mode === 'quiet' ? '安静模式' : '朗读模式';
+        let extra = isMonitoring ? '' : ' (已停止)';
+        modeLabelSpan.innerText = modeText + extra;
+    }
+
+    function applyMerge() {
+        if (mergeSmall > 0 && seedling >= mergeSmall) {
+            let convert = Math.floor(seedling / mergeSmall);
+            if (convert > 0) {
+                seedling -= convert * mergeSmall;
+                mid += convert;
+            }
+        }
+        if (mergeLarge > 0 && mid >= mergeLarge) {
+            let convert = Math.floor(mid / mergeLarge);
+            if (convert > 0) {
+                mid -= convert * mergeLarge;
+                large += convert;
+            }
+        }
+        seedling = Math.max(0, seedling);
+        mid = Math.max(0, mid);
+        large = Math.max(0, large);
+        renderPlantGrid();
+        updateStatsNumbers();
+    }
+
+    function addOneSeedling() {
+        seedling++;
+        renderPlantGrid();
+        updateStatsNumbers();
+        applyMerge();
+        if (soundEnabled) playBeep();
+    }
+
+    function wiltOne() {
+        if (seedling > 0) seedling--;
+        else if (mid > 0) mid--;
+        else if (large > 0) large--;
+        else return false;
+        renderPlantGrid();
+        updateStatsNumbers();
+        return true;
+    }
+
+    function isConditionSatisfied() {
+        if (!isMonitoring) return false;
+        let vol = simulatedOverride !== null ? simulatedOverride : currentVolumeDB;
+        if (mode === "quiet") return vol < dbThreshold;
+        else return vol > dbThreshold;
+    }
+
+    function heartbeat() {
+        if (!isMonitoring) return;
+        const satisfied = isConditionSatisfied();
+        if (satisfied) {
+            nonCompliantSec = 0;
+            accumulatedGoodSec++;
+            totalValidAccumulated++;
+            if (accumulatedGoodSec >= growthSpeed) {
+                let newPlants = Math.floor(accumulatedGoodSec / growthSpeed);
+                for (let i=0; i<newPlants; i++) addOneSeedling();
+                accumulatedGoodSec = accumulatedGoodSec % growthSpeed;
+            }
+        } else {
+            accumulatedGoodSec = 0;
+            nonCompliantSec++;
+            if (nonCompliantSec >= wiltTime) {
+                if (wiltOne()) nonCompliantSec = 0;
+                else nonCompliantSec = 0;
+            }
+        }
+        updateStatsNumbers();
+        renderPlantGrid();
+    }
+
+    function startLoop() { if (intervalTimer) clearInterval(intervalTimer); intervalTimer = setInterval(heartbeat, 1000); }
+    function stopLoop() { if (intervalTimer) clearInterval(intervalTimer); intervalTimer = null; }
+
+    async function initMicrophone() {
+        if (mediaStream) stopMicrophone();
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaStream = stream;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 256;
+            const source = audioCtx.createMediaStreamSource(stream);
+            source.connect(analyser);
+            if (audioCtx.state === 'suspended') await audioCtx.resume();
+            updateVolumeLoop();
+        } catch(e) { console.warn("麦克风失败，使用模拟音量"); startFakeVolume(); }
+    }
+    function stopMicrophone() {
+        if (mediaStream) { mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
+        if (audioCtx) { audioCtx.close(); audioCtx=null; }
+        if (animationId) cancelAnimationFrame(animationId);
+        animationId=null;
+    }
+    function updateVolumeLoop() {
+        if (!analyser || !isMonitoring) { animationId = requestAnimationFrame(updateVolumeLoop); return; }
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0; for(let v of dataArray) sum+=v;
+        let avg = sum/(dataArray.length||1);
+        let vol = Math.min(100, Math.max(0, (avg/255)*100));
+        if(simulatedOverride !== null) vol = simulatedOverride;
+        currentVolumeDB = vol;
+        updateStatsNumbers();
+        animationId = requestAnimationFrame(updateVolumeLoop);
+    }
+    function startFakeVolume() {
+        if(animationId) cancelAnimationFrame(animationId);
+        function fake() { if(isMonitoring) { let fakeVol = 35+Math.random()*45; if(simulatedOverride!==null) fakeVol=simulatedOverride; currentVolumeDB=fakeVol; updateStatsNumbers(); } animationId=requestAnimationFrame(fake); }
+        fake();
+    }
+
+    function playBeep() {
+        if(!soundEnabled) return;
+        try { const ctx = new (window.AudioContext||window.webkitAudioContext)(); const osc=ctx.createOscillator(), gain=ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value=1000; gain.gain.value=0.1; osc.start(); gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.2); osc.stop(ctx.currentTime+0.2); } catch(e){} 
+    }
+
+    function resetEverything() {
+        seedling = 0; mid = 0; large = 0;
+        accumulatedGoodSec = 0;
+        nonCompliantSec = 0;
+        renderPlantGrid();
+        updateStatsNumbers();
+    }
+
+    function saveHistory() {
+        const now = new Date().toLocaleString();
+        historyRecords.unshift({ date: now, theme: currentTheme, totalLarge: large, seedling, mid, large, mode, totalQuietMin: Math.floor(totalValidAccumulated / 60) });
+        if(historyRecords.length>20) historyRecords.pop();
+        localStorage.setItem('quietClassroomHistory', JSON.stringify(historyRecords));
+    }
+    function loadHistory() { const saved = localStorage.getItem('quietClassroomHistory'); if(saved) historyRecords = JSON.parse(saved); }
+    function showHistory() {
+        const container = document.getElementById('historyList');
+        if(historyRecords.length===0) container.innerHTML = "暂无记录";
+        else container.innerHTML = historyRecords.map(r=>`<div style="border-bottom:1px solid #ccc; padding:8px;">📅 ${r.date} | ${r.theme} | 今日总数:${r.totalLarge}${themeMap[r.theme]?.unit || ''} | 最终:🌱${r.seedling} 🌿${r.mid} 🌳${r.large} | 总达标:${r.totalQuietMin}分钟 | ${r.mode==='quiet'?'安静':'朗读'}</div>`).join('');
+        document.getElementById('historyModal').style.display='flex';
+    }
+
+    function simulateVolume(val) { simulatedOverride = val; if(overrideTimeout) clearTimeout(overrideTimeout); overrideTimeout = setTimeout(()=>{ simulatedOverride=null; updateStatsNumbers(); }, 2800); updateStatsNumbers(); }
+
+    function switchTheme(theme) {
+        currentTheme = theme;
+        seedling = 0; mid = 0; large = 0;
+        accumulatedGoodSec = 0;
+        nonCompliantSec = 0;
+        updateThemeUI();
+        renderPlantGrid();
+        updateStatsNumbers();
+    }
+
+    function startMonitoring() { if(isMonitoring) return; isMonitoring=true; if(!audioCtx && !mediaStream) initMicrophone(); else if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); startLoop(); updateStatsNumbers(); renderPlantGrid(); }
+    function stopMonitoring() { isMonitoring=false; stopLoop(); updateStatsNumbers(); renderPlantGrid(); }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => console.log(`全屏失败: ${err.message}`));
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    function bindEvents() {
+        document.getElementById('startBtn').onclick = startMonitoring;
+        document.getElementById('stopBtn').onclick = stopMonitoring;
+        document.getElementById('resetBtn').onclick = () => { resetEverything(); saveHistory(); };
+        document.getElementById('settingsBtn').onclick = () => document.getElementById('settingsModal').style.display='flex';
+        document.getElementById('closeSettingsBtn').onclick = () => {
+            dbThreshold = parseInt(document.getElementById('thresholdSlider').value);
+            growthSpeed = parseInt(document.getElementById('growthSpeedSec').value);
+            mergeSmall = parseInt(document.getElementById('mergeSmall').value);
+            mergeLarge = parseInt(document.getElementById('mergeLarge').value);
+            wiltTime = parseInt(document.getElementById('wiltTimeSec').value);
+            document.getElementById('thresholdValue').innerText = dbThreshold;
+            document.getElementById('settingsModal').style.display='none';
+            updateStatsNumbers();
+        };
+        document.getElementById('thresholdSlider').oninput = (e) => { document.getElementById('thresholdValue').innerText = e.target.value; dbThreshold = parseInt(e.target.value); updateStatsNumbers(); };
+        document.getElementById('closeHistoryBtn').onclick = () => document.getElementById('historyModal').style.display='none';
+        document.getElementById('historyBtn').onclick = showHistory;
+        document.getElementById('modeToggleBtn').onclick = () => { mode = mode==='quiet'?'speak':'quiet'; accumulatedGoodSec=0; nonCompliantSec=0; updateStatsNumbers(); renderPlantGrid(); };
+        document.getElementById('simQuietDot').onclick = () => simulateVolume(Math.max(5, dbThreshold-18));
+        document.getElementById('simNoiseDot').onclick = () => simulateVolume(Math.min(100, dbThreshold+22));
+        document.getElementById('themeDesert').onclick = () => switchTheme('desert');
+        document.getElementById('themeSpace').onclick = () => switchTheme('space');
+        document.getElementById('themeOcean').onclick = () => switchTheme('ocean');
+        document.getElementById('themeCity').onclick = () => switchTheme('city');
+        document.getElementById('fullscreenBtn').onclick = toggleFullscreen;
+
+        const soundToggle = document.getElementById('soundToggleBtn');
+        soundToggle.onclick = () => {
+            soundEnabled = !soundEnabled;
+            if (soundEnabled) {
+                soundToggle.classList.add('active');
+                soundToggle.style.background = '#4c9f70';
+            } else {
+                soundToggle.classList.remove('active');
+                soundToggle.style.background = '#ccc';
+            }
+        };
+
+        // 视频上传处理
+        const videoDesert = document.getElementById('videoDesert');
+        const videoSpace = document.getElementById('videoSpace');
+        const videoOcean = document.getElementById('videoOcean');
+        const videoCity = document.getElementById('videoCity');
+        // 图片上传处理
+        const imgDesert = document.getElementById('imgDesert');
+        const imgSpace = document.getElementById('imgSpace');
+        const imgOcean = document.getElementById('imgOcean');
+        const imgCity = document.getElementById('imgCity');
+
+        function handleVideoUpload(e, themeKey) {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                setBackgroundForTheme(themeKey, 'video', url);
+            }
+        }
+        function handleImageUpload(e, themeKey) {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                setBackgroundForTheme(themeKey, 'image', url);
+            }
+        }
+
+        videoDesert.onchange = (e) => handleVideoUpload(e, 'desert');
+        videoSpace.onchange = (e) => handleVideoUpload(e, 'space');
+        videoOcean.onchange = (e) => handleVideoUpload(e, 'ocean');
+        videoCity.onchange = (e) => handleVideoUpload(e, 'city');
+        imgDesert.onchange = (e) => handleImageUpload(e, 'desert');
+        imgSpace.onchange = (e) => handleImageUpload(e, 'space');
+        imgOcean.onchange = (e) => handleImageUpload(e, 'ocean');
+        imgCity.onchange = (e) => handleImageUpload(e, 'city');
+    }
+
+    loadHistory();
+    bindEvents();
+    switchTheme('desert');
+    updateStatsNumbers();
+</script>
+</body>
+</html>
