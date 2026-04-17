@@ -75,5 +75,14 @@
       "词语"
     ],
     "author": "xiaoqin"
+  },
+  {
+    "title": "安静课堂",
+    "path": "tools/anjingketang.html",
+    "cover": "assets/anjingketang.png",
+    "tags": [
+      "课堂管理"
+    ],
+    "author": "xiaoqin"
   }
 ]
