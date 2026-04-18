@@ -359,6 +359,17 @@
             z-index: -1;
             pointer-events: none;
         }
+        .sound-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }
+        .sound-checkbox input {
+            width: auto;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -462,24 +473,36 @@
             <label>🏜️ 沙漠主题</label>
             <input type="file" id="videoDesert" accept="video/*" style="margin-bottom: 8px;">
             <input type="file" id="imgDesert" accept="image/jpeg,image/png,image/gif,image/webp">
+            <div class="sound-checkbox" id="soundCtrlDesert" style="display: none;">
+                <input type="checkbox" id="videoSoundDesert"> 🔊 视频声音 (关闭即静音)
+            </div>
             <small style="display:block; opacity:0.7;">视频或图片二选一，后上传的生效</small>
         </div>
         <div class="theme-bg-group">
             <label>🚀 太空主题</label>
             <input type="file" id="videoSpace" accept="video/*" style="margin-bottom: 8px;">
             <input type="file" id="imgSpace" accept="image/jpeg,image/png,image/gif,image/webp">
+            <div class="sound-checkbox" id="soundCtrlSpace" style="display: none;">
+                <input type="checkbox" id="videoSoundSpace"> 🔊 视频声音 (关闭即静音)
+            </div>
             <small style="display:block; opacity:0.7;">视频或图片二选一，后上传的生效</small>
         </div>
         <div class="theme-bg-group">
             <label>🌊 海洋主题</label>
             <input type="file" id="videoOcean" accept="video/*" style="margin-bottom: 8px;">
             <input type="file" id="imgOcean" accept="image/jpeg,image/png,image/gif,image/webp">
+            <div class="sound-checkbox" id="soundCtrlOcean" style="display: none;">
+                <input type="checkbox" id="videoSoundOcean"> 🔊 视频声音 (关闭即静音)
+            </div>
             <small style="display:block; opacity:0.7;">视频或图片二选一，后上传的生效</small>
         </div>
         <div class="theme-bg-group">
             <label>🏙️ 城市主题</label>
             <input type="file" id="videoCity" accept="video/*" style="margin-bottom: 8px;">
             <input type="file" id="imgCity" accept="image/jpeg,image/png,image/gif,image/webp">
+            <div class="sound-checkbox" id="soundCtrlCity" style="display: none;">
+                <input type="checkbox" id="videoSoundCity"> 🔊 视频声音 (关闭即静音)
+            </div>
             <small style="display:block; opacity:0.7;">视频或图片二选一，后上传的生效</small>
         </div>
         
@@ -504,7 +527,7 @@
     let seedling = 0, mid = 0, large = 0;
     let accumulatedGoodSec = 0;
     let nonCompliantSec = 0;
-    let totalValidAccumulated = 0;
+    let totalValidAccumulated = 0;   // 累计总达标秒数 (重置时清零)
 
     let dbThreshold = 50;
     let growthSpeed = 5;
@@ -521,12 +544,12 @@
     let intervalTimer = null;
     let historyRecords = [];
 
-    // 存储各主题背景资源 (图片URL 或 视频URL)
+    // 存储各主题背景资源 (图片URL 或 视频URL) 以及静音状态
     let themeBackgrounds = {
-        desert: { type: null, url: null },   // type: 'image' or 'video'
-        space: { type: null, url: null },
-        ocean: { type: null, url: null },
-        city: { type: null, url: null }
+        desert: { type: null, url: null, muted: true },   // type: 'image' or 'video'
+        space: { type: null, url: null, muted: true },
+        ocean: { type: null, url: null, muted: true },
+        city: { type: null, url: null, muted: true }
     };
 
     const themeMap = {
@@ -618,7 +641,7 @@
             video.src = bg.url;
             video.autoplay = true;
             video.loop = true;
-            video.muted = true;
+            video.muted = bg.muted;   // 根据存储的静音状态
             video.className = 'bg-video';
             video.style.objectFit = 'cover';
             bgContainer.appendChild(video);
@@ -632,9 +655,23 @@
         if (old && old.url) {
             URL.revokeObjectURL(old.url);
         }
-        themeBackgrounds[themeKey] = { type, url };
+        themeBackgrounds[themeKey] = { type, url, muted: old ? old.muted : true };
+        // 如果当前主题匹配，刷新背景
         if (currentTheme === themeKey) {
             applyThemeBackground();
+        }
+    }
+
+    function updateVideoMuted(themeKey, muted) {
+        if (themeBackgrounds[themeKey]) {
+            themeBackgrounds[themeKey].muted = muted;
+        }
+        // 如果当前主题且当前背景是视频，则实时更新视频的静音状态
+        if (currentTheme === themeKey) {
+            const videoElem = bgContainer.querySelector('video');
+            if (videoElem) {
+                videoElem.muted = muted;
+            }
         }
     }
 
@@ -795,6 +832,7 @@
         seedling = 0; mid = 0; large = 0;
         accumulatedGoodSec = 0;
         nonCompliantSec = 0;
+        totalValidAccumulated = 0;   // 重置累计总时长
         renderPlantGrid();
         updateStatsNumbers();
     }
@@ -820,6 +858,7 @@
         seedling = 0; mid = 0; large = 0;
         accumulatedGoodSec = 0;
         nonCompliantSec = 0;
+        // 注意：累计总时长不清零，只有重置按钮才清零，切换主题保留累计时长（课堂整体荣誉）
         updateThemeUI();
         renderPlantGrid();
         updateStatsNumbers();
@@ -875,40 +914,67 @@
             }
         };
 
-        // 视频上传处理
+        // 视频上传处理 + 声音开关显示
         const videoDesert = document.getElementById('videoDesert');
         const videoSpace = document.getElementById('videoSpace');
         const videoOcean = document.getElementById('videoOcean');
         const videoCity = document.getElementById('videoCity');
-        // 图片上传处理
         const imgDesert = document.getElementById('imgDesert');
         const imgSpace = document.getElementById('imgSpace');
         const imgOcean = document.getElementById('imgOcean');
         const imgCity = document.getElementById('imgCity');
 
-        function handleVideoUpload(e, themeKey) {
+        const soundCtrlDesert = document.getElementById('soundCtrlDesert');
+        const soundCtrlSpace = document.getElementById('soundCtrlSpace');
+        const soundCtrlOcean = document.getElementById('soundCtrlOcean');
+        const soundCtrlCity = document.getElementById('soundCtrlCity');
+        const soundCheckDesert = document.getElementById('videoSoundDesert');
+        const soundCheckSpace = document.getElementById('videoSoundSpace');
+        const soundCheckOcean = document.getElementById('videoSoundOcean');
+        const soundCheckCity = document.getElementById('videoSoundCity');
+
+        function handleVideoUpload(e, themeKey, soundCtrlDiv, soundCheckbox) {
             const file = e.target.files[0];
             if (file) {
                 const url = URL.createObjectURL(file);
                 setBackgroundForTheme(themeKey, 'video', url);
+                // 显示声音控制条
+                soundCtrlDiv.style.display = 'flex';
+                // 恢复该主题的静音偏好
+                const muted = themeBackgrounds[themeKey].muted;
+                soundCheckbox.checked = !muted;
+                // 如果当前主题匹配且视频正在播放，实时更新静音
+                if (currentTheme === themeKey) {
+                    const videoElem = bgContainer.querySelector('video');
+                    if (videoElem) videoElem.muted = muted;
+                }
             }
         }
-        function handleImageUpload(e, themeKey) {
+
+        function handleImageUpload(e, themeKey, soundCtrlDiv) {
             const file = e.target.files[0];
             if (file) {
                 const url = URL.createObjectURL(file);
                 setBackgroundForTheme(themeKey, 'image', url);
+                // 图片没有声音控制，隐藏控制条
+                soundCtrlDiv.style.display = 'none';
             }
         }
 
-        videoDesert.onchange = (e) => handleVideoUpload(e, 'desert');
-        videoSpace.onchange = (e) => handleVideoUpload(e, 'space');
-        videoOcean.onchange = (e) => handleVideoUpload(e, 'ocean');
-        videoCity.onchange = (e) => handleVideoUpload(e, 'city');
-        imgDesert.onchange = (e) => handleImageUpload(e, 'desert');
-        imgSpace.onchange = (e) => handleImageUpload(e, 'space');
-        imgOcean.onchange = (e) => handleImageUpload(e, 'ocean');
-        imgCity.onchange = (e) => handleImageUpload(e, 'city');
+        videoDesert.onchange = (e) => handleVideoUpload(e, 'desert', soundCtrlDesert, soundCheckDesert);
+        videoSpace.onchange = (e) => handleVideoUpload(e, 'space', soundCtrlSpace, soundCheckSpace);
+        videoOcean.onchange = (e) => handleVideoUpload(e, 'ocean', soundCtrlOcean, soundCheckOcean);
+        videoCity.onchange = (e) => handleVideoUpload(e, 'city', soundCtrlCity, soundCheckCity);
+        imgDesert.onchange = (e) => handleImageUpload(e, 'desert', soundCtrlDesert);
+        imgSpace.onchange = (e) => handleImageUpload(e, 'space', soundCtrlSpace);
+        imgOcean.onchange = (e) => handleImageUpload(e, 'ocean', soundCtrlOcean);
+        imgCity.onchange = (e) => handleImageUpload(e, 'city', soundCtrlCity);
+
+        // 声音开关事件
+        soundCheckDesert.onchange = (e) => updateVideoMuted('desert', !e.target.checked);
+        soundCheckSpace.onchange = (e) => updateVideoMuted('space', !e.target.checked);
+        soundCheckOcean.onchange = (e) => updateVideoMuted('ocean', !e.target.checked);
+        soundCheckCity.onchange = (e) => updateVideoMuted('city', !e.target.checked);
     }
 
     loadHistory();
