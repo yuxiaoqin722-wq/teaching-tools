@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>TASK消消乐 - 教学互动工具</title>
+    <title>TASK消消乐 - 分组泡泡版（支持1组+音效）</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
@@ -52,7 +52,7 @@
             z-index: 2;
         }
 
-        /* 头部：左中右布局，确保中间部分强制一排 */
+        /* 头部样式（保持不变） */
         .header {
             display: flex;
             align-items: center;
@@ -65,8 +65,6 @@
             border-radius: 60px;
             padding: 10px 24px;
         }
-
-        /* 左侧标题区 - 支持可编辑任务名 */
         .title-section {
             flex: 1.2;
             min-width: 180px;
@@ -94,10 +92,7 @@
             transition: 0.1s;
             order: -1;
         }
-        .edit-title-btn:hover {
-            background: #e0e9d4;
-            transform: scale(0.95);
-        }
+        .edit-title-btn:hover { background: #e0e9d4; transform: scale(0.95); }
         .main-title {
             font-size: 2rem;
             font-weight: 600;
@@ -105,7 +100,6 @@
             letter-spacing: 2px;
             font-family: 'Poppins', '华文楷书', cursive;
             cursor: pointer;
-            transition: 0.1s;
             white-space: nowrap;
         }
         .subtitle {
@@ -113,11 +107,8 @@
             color: #8aa07a;
             font-style: italic;
             font-weight: 500;
-            letter-spacing: 1px;
             margin-left: 6px;
         }
-
-        /* 中间功能区：一排显示 */
         .function-bar {
             flex: 2;
             display: flex;
@@ -128,7 +119,6 @@
             background: #fbfef5cc;
             padding: 6px 20px;
             border-radius: 60px;
-            backdrop-filter: blur(2px);
         }
         .timer-box {
             display: flex;
@@ -137,13 +127,8 @@
             background: #ffffffc9;
             padding: 4px 12px;
             border-radius: 48px;
-            white-space: nowrap;
         }
-        .timer-box span {
-            font-weight: 600;
-            color: #6b7c58;
-            font-size: 0.85rem;
-        }
+        .timer-box span { font-weight: 600; color: #6b7c58; font-size: 0.85rem; }
         #timerDisplay {
             font-family: monospace;
             font-size: 1.4rem;
@@ -152,21 +137,14 @@
             background: #fff3e4;
             padding: 2px 10px;
             border-radius: 40px;
-            letter-spacing: 1px;
         }
-        .timer-controls {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-        }
+        .timer-controls { display: flex; gap: 4px; }
         .timer-controls input {
             width: 65px;
             padding: 4px 6px;
             border-radius: 30px;
             border: 1px solid #cfddc0;
             text-align: center;
-            font-family: 'Quicksand', monospace;
-            font-size: 0.8rem;
         }
         .small-icon-btn {
             background: #e5efdb;
@@ -174,13 +152,7 @@
             padding: 4px 8px;
             border-radius: 32px;
             cursor: pointer;
-            font-weight: 600;
             font-size: 0.7rem;
-            transition: 0.1s;
-            font-family: 'Quicksand', sans-serif;
-        }
-        .small-icon-btn:hover {
-            background: #d1e0be;
         }
         .stats-box {
             display: flex;
@@ -190,9 +162,6 @@
             padding: 4px 16px;
             border-radius: 48px;
         }
-        .stats-box .stats-icon {
-            font-size: 1.1rem;
-        }
         #completionStats {
             font-size: 1.3rem;
             font-weight: 700;
@@ -200,7 +169,6 @@
             background: #f2f7ea;
             padding: 2px 12px;
             border-radius: 48px;
-            font-family: monospace;
         }
         .fullscreen-icon {
             background: #e5efdb;
@@ -209,15 +177,7 @@
             padding: 5px 10px;
             border-radius: 40px;
             cursor: pointer;
-            transition: 0.1s;
-            line-height: 1;
         }
-        .fullscreen-icon:hover {
-            background: #d1e0be;
-            transform: scale(0.96);
-        }
-
-        /* 右侧班级管理 */
         .class-control {
             display: flex;
             align-items: center;
@@ -244,71 +204,148 @@
             border-radius: 40px;
             font-weight: 600;
             font-size: 0.8rem;
-            color: #446633;
             cursor: pointer;
         }
 
-        /* 游戏面板 */
-        .game-panel {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            margin-top: 20px;
-        }
-        .bubbles-area {
+        /* 左侧区域：分组或平铺 */
+        .groups-bubbles-area {
             flex: 2.5;
-            min-width: 260px;
+            min-width: 320px;
             background: rgba(250, 252, 245, 0.5);
             border-radius: 60px;
-            padding: 24px 20px;
+            padding: 20px 18px;
             backdrop-filter: blur(3px);
-            min-height: 520px;
+            box-shadow: 0 8px 20px rgba(80, 60, 30, 0.08);
         }
-        .bubbles-grid {
+        .groups-header-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ded0b6;
+        }
+        .groups-header-toolbar h3 {
+            font-size: 1.4rem;
+            color: #9b7e5c;
+            font-weight: 600;
+        }
+        .group-tools {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .group-tools label { font-size: 0.8rem; color: #7f6a48; }
+        #groupCountInput {
+            width: 70px;
+            padding: 4px;
+            border-radius: 30px;
+            border: 1px solid #cfddc0;
+            text-align: center;
+        }
+        .random-group-btn {
+            background: #e2ecd4;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        /* 分组卡片容器 */
+        .groups-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 24px;
-            justify-content: flex-start;
+            gap: 20px;
+            max-height: 65vh;
+            overflow-y: auto;
+            padding: 4px;
         }
-        .bubble {
-            width: 138px;
-            height: 94px;
+        .group-card {
+            flex: 1;
+            min-width: 220px;
+            background: rgba(250, 245, 235, 0.7);
+            border-radius: 32px;
+            padding: 12px;
+            backdrop-filter: blur(2px);
+            transition: all 0.1s;
+            border: 1px solid #e2d4c0;
+        }
+        .group-title {
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 6px 10px;
+            background: rgba(255,255,230,0.6);
+            border-radius: 40px;
+            margin-bottom: 12px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .group-members {
+            min-height: 100px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        /* 公用泡泡样式 */
+        .bubble-student {
+            width: 110px;
+            height: 80px;
             background: rgba(255, 248, 235, 0.92);
             backdrop-filter: blur(8px);
-            border-radius: 32px 20px 36px 20px;
-            box-shadow: 0 15px 22px -10px rgba(80, 60, 30, 0.18), inset 0 1px 2px rgba(255,255,210,0.9);
+            border-radius: 28px 16px 32px 16px;
+            box-shadow: 0 12px 18px -8px rgba(100, 70, 40, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: #4f3e2c;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.1s ease;
             animation: float 2.8s infinite ease-in-out;
-            border: 1px solid rgba(230, 210, 175, 0.7);
+            border: 1px solid #ecd9bf;
             text-align: center;
-            line-height: 1.3;
-            padding: 0 8px;
+            padding: 0 6px;
             font-family: 'Quicksand', 'Poppins', '华文楷书', 'KaiTi', cursive;
+            user-select: none;
         }
+        .bubble-student:active { cursor: grabbing; }
+        .bubble-student.dragging { opacity: 0.5; }
         @keyframes float {
             0% { transform: translateY(0px); }
-            50% { transform: translateY(-7px); }
+            50% { transform: translateY(-5px); }
             100% { transform: translateY(0px); }
         }
-        .bubble:hover {
+        .bubble-student:hover {
             background: rgba(255, 245, 225, 0.98);
             transform: scale(1.02);
         }
+        .group-card.drag-over {
+            background: #e9e0cf;
+            border: 1px dashed #b68b40;
+        }
+        .empty-group-tip {
+            color: #b6a27e;
+            text-align: center;
+            font-size: 0.75rem;
+            padding: 16px;
+            width: 100%;
+            font-style: italic;
+        }
+
+        /* 右侧英雄榜（位置不变） */
         .leaderboard-area {
-            flex: 1.2;
-            min-width: 270px;
+            flex: 1;
+            min-width: 260px;
             background: #fdfaf2ea;
             border-radius: 48px;
             backdrop-filter: blur(5px);
             padding: 20px 16px;
             border: 1px solid #e3d7c4;
+            height: fit-content;
         }
         .board-header {
             text-align: center;
@@ -322,7 +359,6 @@
             color: #b17a48;
             letter-spacing: 3px;
             font-family: 'Poppins', '华文楷书', cursive;
-            margin-bottom: 6px;
         }
         .hero-sub {
             font-size: 0.7rem;
@@ -335,11 +371,10 @@
             background: #f0e7da;
             border: none;
             font-size: 0.7rem;
-            color: #8f7656;
-            cursor: pointer;
             padding: 4px 12px;
             border-radius: 40px;
             margin-top: 6px;
+            cursor: pointer;
         }
         .rank-list {
             list-style: none;
@@ -354,25 +389,15 @@
             margin-bottom: 8px;
             background: #fffef9;
             border-radius: 48px;
-            font-weight: 600;
             border-left: 5px solid #ddc8a8;
         }
-        .rank-number {
-            font-weight: bold;
-            font-size: 1.1rem;
-            width: 36px;
-            text-align: center;
-            color: #9b7a54;
-        }
-        .rank-name {
-            flex: 1;
-            font-size: 0.95rem;
-        }
+        .rank-number { font-weight: bold; width: 36px; text-align: center; color: #9b7a54; }
+        .rank-name { flex: 1; font-size: 0.95rem; }
         .rank-list li.first .rank-name { color: #e6b422; font-weight: 800; }
         .rank-list li.second .rank-name { color: #5f8b9c; font-weight: 800; }
         .rank-list li.third .rank-name { color: #cd7a32; font-weight: 800; }
 
-        /* 班级管理弹窗 */
+        /* 班级管理弹窗（保持不变） */
         .modal {
             display: none;
             position: fixed;
@@ -393,14 +418,12 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            border: 1px solid #e2d3bd;
         }
         .modal-header {
             padding: 18px 26px;
             background: #f2ecdf;
             display: flex;
             justify-content: space-between;
-            font-size: 1.2rem;
             font-weight: bold;
             color: #5e4a34;
         }
@@ -422,10 +445,7 @@
             flex: 2.2;
             min-width: 260px;
         }
-        .class-list {
-            list-style: none;
-            margin-top: 12px;
-        }
+        .class-list { list-style: none; margin-top: 12px; }
         .class-item {
             display: flex;
             align-items: center;
@@ -437,34 +457,10 @@
             cursor: pointer;
         }
         .class-item.active { background: #dee9cf; border-left: 6px solid #bb8b52; }
-        .class-name {
-            font-weight: bold;
-            flex: 1;
-            cursor: pointer;
-            padding: 2px 4px;
-        }
-        /* 班级操作按钮组 */
-        .class-actions {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-        .class-actions button {
-            background: none;
-            border: none;
-            font-size: 0.9rem;
-            cursor: pointer;
-            color: #9b8463;
-            padding: 2px 6px;
-            border-radius: 20px;
-            transition: 0.1s;
-        }
-        .class-actions button:hover {
-            background: #e8ddcc;
-        }
-        .delete-class {
-            color: #bc7a5a;
-        }
+        .class-name { font-weight: bold; flex: 1; cursor: pointer; }
+        .class-actions { display: flex; gap: 6px; }
+        .class-actions button { background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #9b8463; }
+        .delete-class { color: #bc7a5a; }
         .new-class-btn {
             margin-top: 20px;
             background: #d4e2c4;
@@ -478,19 +474,12 @@
         .student-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             background: #fffef5;
             padding: 6px 12px;
             margin: 8px 0;
             border-radius: 40px;
         }
-        .student-name-display {
-            flex: 1;
-            font-weight: 600;
-            cursor: pointer;
-            padding: 4px 6px;
-            border-radius: 28px;
-        }
+        .student-name-display { flex: 1; font-weight: 600; cursor: pointer; }
         .batch-area textarea {
             width: 100%;
             height: 80px;
@@ -502,11 +491,10 @@
         button { background: #e9dfce; border: none; padding: 5px 14px; border-radius: 40px; cursor: pointer; }
         .save-settings { background: #b6cf9a; color: #2c3e1f; font-weight: bold; }
         .inline-input {
-            font-family: 'Quicksand', '华文楷书', cursive;
+            font-family: inherit;
             padding: 4px 8px;
             border-radius: 28px;
             border: 1px solid #cbbf9f;
-            background: #fffef0;
             width: 100%;
         }
         .toast-msg {
@@ -541,8 +529,6 @@
             padding: 3px 14px;
             border-radius: 30px;
             backdrop-filter: blur(3px);
-            letter-spacing: 1px;
-            z-index: 99;
             pointer-events: none;
             opacity: 0.75;
         }
@@ -553,12 +539,11 @@
     <div class="header">
         <div class="title-section">
             <div class="task-title-wrapper">
-                <button id="editTaskBtn" class="edit-title-btn" title="点击修改任务名称">✏️</button>
+                <button id="editTaskBtn" class="edit-title-btn">✏️</button>
                 <span id="taskTitle" class="main-title">📖 TASK消消乐</span>
             </div>
             <div class="subtitle">✨ I learned I'm happy ✨</div>
         </div>
-
         <div class="function-bar">
             <div class="timer-box">
                 <span>⏳</span>
@@ -575,7 +560,6 @@
             </div>
             <button id="fullscreenBtn" class="fullscreen-icon" title="全屏模式">⤢</button>
         </div>
-
         <div class="class-control">
             <select id="globalClassSelect" class="current-class-select"></select>
             <button id="classManageBtn" class="class-manage-btn">📚 班级管理</button>
@@ -583,15 +567,26 @@
     </div>
 
     <div class="game-panel">
-        <div class="bubbles-area">
-            <div id="bubblesContainer" class="bubbles-grid"></div>
+        <!-- 左侧：分组区域 -->
+        <div class="groups-bubbles-area">
+            <div class="groups-header-toolbar">
+                <h3>📌 学生泡泡</h3>
+                <div class="group-tools">
+                    <label>分组数: <input type="number" id="groupCountInput" min="1" max="6" value="3" step="1"></label>
+                    <button id="randomGroupBtn" class="random-group-btn">🎲 随机分组</button>
+                </div>
+            </div>
+            <div id="groupsContainer" class="groups-container"></div>
+            <div style="font-size: 0.7rem; color: #aa9a7a; margin-top: 12px; text-align: center;">
+                💡 点击泡泡完成任务 → 进入英雄榜 | 分组模式下可拖拽移动学生
+            </div>
         </div>
+
+        <!-- 右侧英雄榜 -->
         <div class="leaderboard-area">
             <div class="board-header">
                 <h3>🏅 英雄榜 🏅</h3>
-                <div class="hero-sub">
-                    <span>Yīng Xióng Bǎng</span> · <span>Hall of Fame</span>
-                </div>
+                <div class="hero-sub">Yīng Xióng Bǎng · Hall of Fame</div>
                 <button id="resetActivityBtn" class="reset-board">🔄 重置活动</button>
             </div>
             <ul id="rankList" class="rank-list">
@@ -619,7 +614,7 @@
                 <h4>👩‍🎓 学生名单 · 当前班级</h4>
                 <div id="currentClassNameDisplay" style="font-weight:bold; margin-bottom: 8px;"></div>
                 <div class="batch-area">
-                    <textarea id="batchNamesInput" placeholder="在此粘贴学生姓名，每行一个姓名，例如：&#10;李小乐&#10;张子轩&#10;林恬恬"></textarea>
+                    <textarea id="batchNamesInput" placeholder="粘贴学生姓名，每行一个"></textarea>
                     <button id="importBatchBtn">📎 批量导入/替换</button>
                 </div>
                 <div id="studentListModalContainer" style="margin-top: 12px; max-height: 240px; overflow-y: auto;"></div>
@@ -637,98 +632,293 @@
 </div>
 
 <script>
-    // ---------- 数据 ----------
+    // ---------- 音效函数（爆破声）----------
+    function playPopSound() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.value = 0.15; // 音量适中
+            const oscillator = audioCtx.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 800;
+            const now = audioCtx.currentTime;
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, now + 0.2);
+            oscillator.stop(now + 0.2);
+            // 确保 AudioContext 处于 running 状态（点击事件中会自动激活）
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        } catch(e) {
+            console.log("音效播放失败", e);
+        }
+    }
+
+    // ---------- 核心数据 ----------
     let classData = [];        
     let currentClassId = null;
     let eliminatedSet = new Set();     
     let rankOrder = [];        
     let customTaskName = localStorage.getItem('customTaskName') || "📖 TASK消消乐";
 
-    const cheers = [
-        "Awesome! 🌟", "Good job! 🎉", "Excellent! 💪", "Nice work! ✨",
-        "Keep going! 🚀", "You rock! 🤘", "So clever! 🧠", "Perfect! 🍭",
-        "Boom! 💥", "Fantastic! 🌈", "Way to go! 🎈", "Brilliant! 🎯", "Terrific! 🍀"
+    // 分组相关
+    let groups = [];
+    let groupCount = 3;         // 当前组数 (1~6)
+
+    const groupColors = [
+        "rgba(215, 235, 205, 0.6)", "rgba(235, 220, 195, 0.6)", "rgba(210, 225, 240, 0.6)",
+        "rgba(240, 210, 210, 0.6)", "rgba(225, 215, 240, 0.6)", "rgba(240, 230, 190, 0.6)"
     ];
 
-    function showEncouragement(name) {
-        const randomMsg = cheers[Math.floor(Math.random() * cheers.length)];
-        const toast = document.createElement('div');
-        toast.className = 'toast-msg';
-        toast.innerText = `🎈 ${name} ${randomMsg}`;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 1500);
+    // 辅助：获取当前班级所有学生姓名（未被删除的）
+    function getCurrentStudentNames() {
+        const cur = classData.find(c => c.id === currentClassId);
+        return cur ? [...cur.students] : [];
     }
 
-    function saveData() {
-        localStorage.setItem('taskEliminate', JSON.stringify({ classData, currentClassId }));
+    // 保存分组配置
+    function saveGroupConfig() {
+        if (!currentClassId) return;
+        const config = {
+            groupCount: groupCount,
+            groups: groups
+        };
+        localStorage.setItem(`groupConfig_${currentClassId}`, JSON.stringify(config));
     }
 
-    function loadData() {
-        const raw = localStorage.getItem('taskEliminate');
-        if (raw) {
+    // 加载分组配置
+    function loadGroupConfig() {
+        if (!currentClassId) return;
+        const stored = localStorage.getItem(`groupConfig_${currentClassId}`);
+        if (stored) {
             try {
-                const data = JSON.parse(raw);
-                classData = data.classData || [];
-                currentClassId = data.currentClassId || null;
-            } catch(e) {}
+                const config = JSON.parse(stored);
+                groupCount = config.groupCount;
+                groups = config.groups || [];
+                // 同步学生：移除已删除，添加新生
+                const currentStudents = getCurrentStudentNames();
+                let allMembers = groups.flatMap(g => g.members);
+                const missing = currentStudents.filter(s => !allMembers.includes(s));
+                if (missing.length && groups.length) groups[0].members.push(...missing);
+                groups.forEach(g => {
+                    g.members = g.members.filter(m => currentStudents.includes(m));
+                });
+            } catch(e) { initDefaultGroupConfig(); }
+        } else {
+            initDefaultGroupConfig();
         }
-        if (!classData.length) {
-            classData = [
-                { id: 'c1', name: '启蒙班', students: ['李小乐', '张子轩', '林恬恬', '赵一鸣'] },
-                { id: 'c2', name: '朝阳班', students: ['周若曦', '吴子涵', '郑子琪', '王思睿'] }
-            ];
-            currentClassId = classData[0].id;
-        }
-        if (!classData.find(c => c.id === currentClassId) && classData.length) currentClassId = classData[0].id;
-        saveData();
+        // 同步 UI 输入框
+        document.getElementById('groupCountInput').value = groupCount;
+        renderGroupCards();
+        saveGroupConfig();
     }
 
-    function updateCompletionStats() {
-        const curClass = classData.find(c => c.id === currentClassId);
-        if (!curClass) {
-            document.getElementById('completionStats').innerText = `0 / 0`;
+    // 初始化默认分组（3组，平均分配）
+    function initDefaultGroupConfig() {
+        const students = getCurrentStudentNames();
+        groupCount = 3;
+        groups = [];
+        for (let i = 0; i < groupCount; i++) {
+            groups.push({
+                id: `g${i}`,
+                name: `第${i+1}组`,
+                color: groupColors[i % groupColors.length],
+                members: []
+            });
+        }
+        if (students.length) {
+            students.forEach((stu, idx) => {
+                groups[idx % groupCount].members.push(stu);
+            });
+        }
+    }
+
+    // 随机分组（1组时无意义，但保留功能）
+    function randomGrouping() {
+        const students = getCurrentStudentNames();
+        if (students.length === 0 || groupCount === 1) {
+            if (groupCount === 1) {
+                // 只有一组，把所有学生放进去
+                groups[0].members = [...students];
+                renderGroupCards();
+                saveGroupConfig();
+            }
             return;
         }
-        const total = curClass.students.length;
-        const completed = eliminatedSet.size;
-        document.getElementById('completionStats').innerText = `${completed} / ${total}`;
+        const shuffled = [...students];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        groups.forEach(g => g.members = []);
+        for (let i = 0; i < shuffled.length; i++) {
+            groups[i % groupCount].members.push(shuffled[i]);
+        }
+        renderGroupCards();
+        saveGroupConfig();
     }
 
-    function resetCurrentActivity() {
-        eliminatedSet.clear();
-        rankOrder = [];
-        renderBubblesAndRank();
+    // 切换组数（1~6）
+    function setGroupCount(newCount) {
+        newCount = Math.min(6, Math.max(1, newCount));
+        if (newCount === groupCount) return;
+        
+        const students = getCurrentStudentNames();
+        groupCount = newCount;
+        // 重建 groups 数组
+        const newGroups = [];
+        for (let i = 0; i < groupCount; i++) {
+            newGroups.push({
+                id: `g${i}`,
+                name: `第${i+1}组`,
+                color: groupColors[i % groupColors.length],
+                members: []
+            });
+        }
+        // 将现有学生平均分配到各组
+        if (students.length) {
+            students.forEach((stu, idx) => {
+                newGroups[idx % groupCount].members.push(stu);
+            });
+        }
+        groups = newGroups;
+        renderGroupCards();
+        saveGroupConfig();
+    }
+
+    // 渲染分组卡片
+    function renderGroupCards() {
+        const container = document.getElementById('groupsContainer');
+        container.innerHTML = '';
+        groups.forEach((group, groupIdx) => {
+            const card = document.createElement('div');
+            card.className = 'group-card';
+            card.style.backgroundColor = group.color;
+            card.setAttribute('data-group-idx', groupIdx);
+            // 拖拽放置（仅当组数大于1时允许跨组拖拽）
+            if (groupCount > 1) {
+                card.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    card.classList.add('drag-over');
+                });
+                card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+                card.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    card.classList.remove('drag-over');
+                    const studentName = e.dataTransfer.getData('text/plain');
+                    if (studentName && !eliminatedSet.has(studentName)) {
+                        // 从原组移除
+                        for (let g of groups) {
+                            const pos = g.members.indexOf(studentName);
+                            if (pos !== -1) {
+                                g.members.splice(pos, 1);
+                                break;
+                            }
+                        }
+                        groups[groupIdx].members.push(studentName);
+                        renderGroupCards();
+                        saveGroupConfig();
+                    }
+                });
+            }
+            
+            // 组名（双击编辑）
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'group-title';
+            titleDiv.innerText = group.name;
+            titleDiv.title = '双击修改组名';
+            titleDiv.ondblclick = () => {
+                const newName = prompt('请输入新的组名', group.name);
+                if (newName && newName.trim()) {
+                    group.name = newName.trim();
+                    renderGroupCards();
+                    saveGroupConfig();
+                }
+            };
+            
+            const membersDiv = document.createElement('div');
+            membersDiv.className = 'group-members';
+            const validMembers = group.members.filter(m => !eliminatedSet.has(m));
+            if (validMembers.length === 0) {
+                const emptySpan = document.createElement('div');
+                emptySpan.className = 'empty-group-tip';
+                emptySpan.innerText = '✨ 暂无成员 ✨';
+                membersDiv.appendChild(emptySpan);
+            } else {
+                validMembers.forEach(student => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble-student';
+                    bubble.innerText = student;
+                    if (groupCount > 1) {
+                        bubble.setAttribute('draggable', 'true');
+                        bubble.addEventListener('dragstart', (e) => {
+                            e.dataTransfer.setData('text/plain', student);
+                            e.dataTransfer.effectAllowed = 'move';
+                            bubble.classList.add('dragging');
+                        });
+                        bubble.addEventListener('dragend', () => bubble.classList.remove('dragging'));
+                    }
+                    bubble.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (eliminatedSet.has(student)) return;
+                        // 播放爆破音效
+                        playPopSound();
+                        eliminatedSet.add(student);
+                        rankOrder.push(student);
+                        showEncouragement(student);
+                        // 从所在组移除
+                        for (let g of groups) {
+                            const idxInGroup = g.members.indexOf(student);
+                            if (idxInGroup !== -1) {
+                                g.members.splice(idxInGroup, 1);
+                                break;
+                            }
+                        }
+                        renderGroupCards();
+                        renderRankList();
+                        updateCompletionStats();
+                        saveGroupConfig();
+                        saveEliminatedState();
+                    });
+                    membersDiv.appendChild(bubble);
+                });
+            }
+            card.appendChild(titleDiv);
+            card.appendChild(membersDiv);
+            container.appendChild(card);
+        });
+    }
+
+    // 保存消除状态（英雄榜和已消除集合）
+    function saveEliminatedState() {
+        if (!currentClassId) return;
+        localStorage.setItem(`eliminated_${currentClassId}`, JSON.stringify({
+            eliminatedSet: Array.from(eliminatedSet),
+            rankOrder: rankOrder
+        }));
+    }
+
+    function loadEliminatedState() {
+        if (!currentClassId) return;
+        const stored = localStorage.getItem(`eliminated_${currentClassId}`);
+        if (stored) {
+            try {
+                const data = JSON.parse(stored);
+                eliminatedSet = new Set(data.eliminatedSet || []);
+                rankOrder = data.rankOrder || [];
+            } catch(e) {}
+        } else {
+            eliminatedSet.clear();
+            rankOrder = [];
+        }
+        renderRankList();
         updateCompletionStats();
     }
 
-    function renderBubblesAndRank() {
-        const curClass = classData.find(c => c.id === currentClassId);
-        if (!curClass) return;
-        const students = curClass.students || [];
-        const container = document.getElementById('bubblesContainer');
-        container.innerHTML = '';
-        students.forEach(name => {
-            if (!eliminatedSet.has(name)) {
-                const bubble = document.createElement('div');
-                bubble.className = 'bubble';
-                bubble.innerText = name;
-                bubble.addEventListener('click', () => {
-                    if (eliminatedSet.has(name)) return;
-                    eliminatedSet.add(name);
-                    rankOrder.push(name);
-                    showEncouragement(name);
-                    renderBubblesAndRank();
-                    updateCompletionStats();
-                });
-                container.appendChild(bubble);
-            }
-        });
-        if (students.length === 0) {
-            container.innerHTML = '<div class="empty-tip">🍃 暂无学生，请在班级管理中添加 🍃</div>';
-        } else if (container.children.length === 0 && students.length > 0) {
-            container.innerHTML = '<div class="empty-tip">🎉 太棒啦！所有任务完成 🎉</div>';
-        }
-
+    // 渲染英雄榜
+    function renderRankList() {
         const rankListEl = document.getElementById('rankList');
         rankListEl.innerHTML = '';
         if (rankOrder.length === 0) {
@@ -746,267 +936,112 @@
                 rankListEl.appendChild(li);
             });
         }
+    }
+
+    function updateCompletionStats() {
+        const curClass = classData.find(c => c.id === currentClassId);
+        if (!curClass) { document.getElementById('completionStats').innerText = `0 / 0`; return; }
+        const total = curClass.students.length;
+        const completed = eliminatedSet.size;
+        document.getElementById('completionStats').innerText = `${completed} / ${total}`;
+    }
+
+    function resetCurrentActivity() {
+        eliminatedSet.clear();
+        rankOrder = [];
+        // 重置分组时不清除分组结构，只重置消除集，但需要重新渲染（所有学生重新出现）
+        renderGroupCards();
+        renderRankList();
+        updateCompletionStats();
+        saveEliminatedState();
+    }
+
+    // 当学生名单变更时，同步分组
+    function syncAfterStudentChange() {
+        const currentStudents = getCurrentStudentNames();
+        let allMembers = groups.flatMap(g => g.members);
+        const newStudents = currentStudents.filter(s => !allMembers.includes(s));
+        if (newStudents.length && groups.length) groups[0].members.push(...newStudents);
+        groups.forEach(g => {
+            g.members = g.members.filter(m => currentStudents.includes(m));
+        });
+        renderGroupCards();
+        saveGroupConfig();
+        // 同时处理消除集：移除已被删除的学生
+        eliminatedSet.forEach(s => {
+            if (!currentStudents.includes(s)) eliminatedSet.delete(s);
+        });
+        rankOrder = rankOrder.filter(s => currentStudents.includes(s));
+        saveEliminatedState();
+        renderRankList();
         updateCompletionStats();
     }
 
-    function escapeHtml(str) { return String(str).replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;});}
-
+    // ---------- 原有函数（激励语、数据存储、班级管理、倒计时等）----------
+    const cheers = ["Awesome! 🌟", "Good job! 🎉", "Excellent! 💪", "Nice work! ✨", "Keep going! 🚀", "You rock! 🤘", "So clever! 🧠", "Perfect! 🍭", "Boom! 💥", "Fantastic! 🌈", "Way to go! 🎈", "Brilliant! 🎯", "Terrific! 🍀"];
+    function showEncouragement(name) {
+        const randomMsg = cheers[Math.floor(Math.random() * cheers.length)];
+        const toast = document.createElement('div');
+        toast.className = 'toast-msg';
+        toast.innerText = `🎈 ${name} ${randomMsg}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 1500);
+    }
+    function saveData() { localStorage.setItem('taskEliminate', JSON.stringify({ classData, currentClassId })); }
+    function loadData() {
+        const raw = localStorage.getItem('taskEliminate');
+        if (raw) { try { const data = JSON.parse(raw); classData = data.classData || []; currentClassId = data.currentClassId || null; } catch(e) {} }
+        if (!classData.length) { classData = [ { id: 'c1', name: '启蒙班', students: ['李小乐', '张子轩', '林恬恬', '赵一鸣'] }, { id: 'c2', name: '朝阳班', students: ['周若曦', '吴子涵', '郑子琪', '王思睿'] } ]; currentClassId = classData[0].id; }
+        if (!classData.find(c => c.id === currentClassId) && classData.length) currentClassId = classData[0].id;
+        saveData();
+    }
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
     function refreshFullUI() {
         renderClassSelect();
-        renderBubblesAndRank();
         updateCompletionStats();
+        renderRankList();
         document.getElementById('taskTitle').innerHTML = customTaskName;
     }
-
     function renderClassSelect() {
-        const select = document.getElementById('globalClassSelect');
-        select.innerHTML = '';
-        classData.forEach(cls => {
-            const opt = document.createElement('option');
-            opt.value = cls.id;
-            opt.innerText = cls.name;
-            if (cls.id === currentClassId) opt.selected = true;
-            select.appendChild(opt);
-        });
-        select.onchange = (e) => {
-            const newId = e.target.value;
-            if (newId !== currentClassId) {
-                currentClassId = newId;
-                eliminatedSet.clear();
-                rankOrder = [];
-                saveData();
-                refreshFullUI();
-            }
-        };
+        const select = document.getElementById('globalClassSelect'); select.innerHTML = '';
+        classData.forEach(cls => { const opt = document.createElement('option'); opt.value = cls.id; opt.innerText = cls.name; if (cls.id === currentClassId) opt.selected = true; select.appendChild(opt); });
+        select.onchange = (e) => { const newId = e.target.value; if (newId !== currentClassId) { currentClassId = newId; loadGroupConfig(); loadEliminatedState(); refreshFullUI(); } };
     }
+    // 倒计时
+    let countdownInterval = null; let remainingSeconds = 300;
+    function updateTimerDisplay() { const mins = Math.floor(remainingSeconds/60), secs = remainingSeconds%60; document.getElementById('timerDisplay').innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`; }
+    function stopCountdown() { if(countdownInterval) clearInterval(countdownInterval); countdownInterval=null; }
+    function startCountdown() { stopCountdown(); let minutesVal = parseFloat(document.getElementById('timerMinutes').value); if(isNaN(minutesVal)||minutesVal<=0) minutesVal=5; remainingSeconds = Math.floor(minutesVal*60); if(remainingSeconds<=0) remainingSeconds=60; updateTimerDisplay(); countdownInterval = setInterval(()=>{ if(remainingSeconds<=0){ stopCountdown(); const utterance = new SpeechSynthesisUtterance("Time is up! 时间到啦"); utterance.lang='en-US'; speechSynthesis.speak(utterance); try{ const audioCtx = new (window.AudioContext||window.webkitAudioContext)(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); osc.frequency.value=880; gain.gain.value=0.25; osc.start(); gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime+0.8); osc.stop(audioCtx.currentTime+0.7); }catch(e){} updateTimerDisplay(); return; } remainingSeconds--; updateTimerDisplay(); },1000); }
+    function resetTimer() { stopCountdown(); let minutesVal = parseFloat(document.getElementById('timerMinutes').value); if(isNaN(minutesVal)||minutesVal<=0) minutesVal=5; remainingSeconds = Math.floor(minutesVal*60); updateTimerDisplay(); }
+    function toggleFullscreen() { if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+    function editTaskName() { const newName = prompt("请输入任务名称", customTaskName.replace(/^📖 /,'')); if(newName && newName.trim()){ let displayName = newName.trim(); if(!displayName.startsWith("📖")) displayName = "📖 "+displayName; customTaskName=displayName; localStorage.setItem('customTaskName',customTaskName); document.getElementById('taskTitle').innerHTML=customTaskName; } }
 
-    // 倒计时模块
-    let countdownInterval = null;
-    let remainingSeconds = 300;
-    function updateTimerDisplay() {
-        const mins = Math.floor(remainingSeconds / 60);
-        const secs = remainingSeconds % 60;
-        document.getElementById('timerDisplay').innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-    }
-    function stopCountdown() {
-        if (countdownInterval) {
-            clearInterval(countdownInterval);
-            countdownInterval = null;
-        }
-    }
-    function startCountdown() {
-        stopCountdown();
-        let minutesVal = parseFloat(document.getElementById('timerMinutes').value);
-        if (isNaN(minutesVal) || minutesVal <= 0) minutesVal = 5;
-        remainingSeconds = Math.floor(minutesVal * 60);
-        if (remainingSeconds <= 0) remainingSeconds = 60;
-        updateTimerDisplay();
-        countdownInterval = setInterval(() => {
-            if (remainingSeconds <= 0) {
-                stopCountdown();
-                const utterance = new SpeechSynthesisUtterance("Time is up! 时间到啦");
-                utterance.lang = 'en-US';
-                speechSynthesis.speak(utterance);
-                try {
-                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    const oscillator = audioCtx.createOscillator();
-                    const gainNode = audioCtx.createGain();
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
-                    oscillator.frequency.value = 880;
-                    gainNode.gain.value = 0.25;
-                    oscillator.start();
-                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.8);
-                    oscillator.stop(audioCtx.currentTime + 0.7);
-                } catch(e) { console.log("audio not supported"); }
-                updateTimerDisplay();
-                return;
-            }
-            remainingSeconds--;
-            updateTimerDisplay();
-        }, 1000);
-    }
-    function resetTimer() {
-        stopCountdown();
-        let minutesVal = parseFloat(document.getElementById('timerMinutes').value);
-        if (isNaN(minutesVal) || minutesVal <= 0) minutesVal = 5;
-        remainingSeconds = Math.floor(minutesVal * 60);
-        updateTimerDisplay();
-    }
-
-    function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => console.log(err));
-        } else {
-            document.exitFullscreen();
-        }
-    }
-
-    function editTaskName() {
-        const newName = prompt("请输入任务名称（例如：背诵古诗）", customTaskName.replace(/^📖 /, ''));
-        if (newName && newName.trim()) {
-            let displayName = newName.trim();
-            if (!displayName.startsWith("📖")) displayName = "📖 " + displayName;
-            customTaskName = displayName;
-            localStorage.setItem('customTaskName', customTaskName);
-            document.getElementById('taskTitle').innerHTML = customTaskName;
-        }
-    }
-
-    // ---------- 班级管理弹窗逻辑（修改：为每个班级增加编辑按钮）----------
-    let currentEditClassId = null;
-    let modal = null;
-    function openModal() { if (!modal) modal = document.getElementById('classModal'); currentEditClassId = currentClassId; refreshModalClassList(); refreshStudentManagerUI(); modal.style.display = 'flex'; }
-    function closeModal() { if(modal) modal.style.display = 'none'; }
-
+    // 班级管理弹窗（保持不变）
+    let currentEditClassId = null, modal = null;
+    function openModal() { if(!modal) modal=document.getElementById('classModal'); currentEditClassId=currentClassId; refreshModalClassList(); refreshStudentManagerUI(); modal.style.display='flex'; }
+    function closeModal() { if(modal) modal.style.display='none'; }
     function refreshModalClassList() {
-        const container = document.getElementById('classListModal');
-        container.innerHTML = '';
-        classData.forEach((cls, idx) => {
-            const li = document.createElement('li'); 
-            li.className = 'class-item';
-            if (currentEditClassId === cls.id) li.classList.add('active');
-            
-            // 班级名称显示区域（支持双击编辑）
-            const nameSpan = document.createElement('span'); 
-            nameSpan.className = 'class-name'; 
-            nameSpan.innerText = cls.name;
-            nameSpan.ondblclick = (e) => { e.stopPropagation(); inlineEditClassname(cls.id, nameSpan); };
-            
-            // 操作按钮组：编辑按钮 + 上下移动 + 删除
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'class-actions';
-            
-            // 编辑按钮（铅笔图标）
-            const editBtn = document.createElement('button');
-            editBtn.innerHTML = '✏️';
-            editBtn.title = '编辑班级名称';
-            editBtn.onclick = (e) => {
-                e.stopPropagation();
-                // 直接调用编辑功能，使用当前显示的名称
-                inlineEditClassname(cls.id, nameSpan);
-            };
-            
-            const upBtn = document.createElement('button');
-            upBtn.innerHTML = '↑';
-            upBtn.title = '上移';
-            if (idx === 0) upBtn.disabled = true;
-            else upBtn.onclick = (e) => { e.stopPropagation(); moveClass(idx, -1); };
-            
-            const downBtn = document.createElement('button');
-            downBtn.innerHTML = '↓';
-            downBtn.title = '下移';
-            if (idx === classData.length-1) downBtn.disabled = true;
-            else downBtn.onclick = (e) => { e.stopPropagation(); moveClass(idx, 1); };
-            
-            const delBtn = document.createElement('button');
-            delBtn.innerHTML = '🗑️';
-            delBtn.title = '删除班级';
-            delBtn.className = 'delete-class';
-            delBtn.onclick = (e) => { e.stopPropagation(); deleteClassById(cls.id); };
-            
-            actionsDiv.appendChild(editBtn);
-            actionsDiv.appendChild(upBtn);
-            actionsDiv.appendChild(downBtn);
-            actionsDiv.appendChild(delBtn);
-            
-            li.appendChild(nameSpan);
-            li.appendChild(actionsDiv);
-            
-            li.onclick = (e) => { 
-                if(e.target.tagName === 'BUTTON') return; 
-                currentEditClassId = cls.id; 
-                refreshModalClassList(); 
-                refreshStudentManagerUI(); 
-            };
-            container.appendChild(li);
-        });
-        if(!classData.length) container.innerHTML = '<div class="empty-tip">暂无班级，点击新建</div>';
+        const container = document.getElementById('classListModal'); container.innerHTML='';
+        classData.forEach((cls,idx)=>{ const li=document.createElement('li'); li.className='class-item'; if(currentEditClassId===cls.id) li.classList.add('active'); const nameSpan=document.createElement('span'); nameSpan.className='class-name'; nameSpan.innerText=cls.name; nameSpan.ondblclick=e=>{ e.stopPropagation(); inlineEditClassname(cls.id,nameSpan); }; const actionsDiv=document.createElement('div'); actionsDiv.className='class-actions'; const editBtn=document.createElement('button'); editBtn.innerHTML='✏️'; editBtn.onclick=e=>{ e.stopPropagation(); inlineEditClassname(cls.id,nameSpan); }; const upBtn=document.createElement('button'); upBtn.innerHTML='↑'; if(idx!==0) upBtn.onclick=e=>{ e.stopPropagation(); moveClass(idx,-1); }; const downBtn=document.createElement('button'); downBtn.innerHTML='↓'; if(idx!==classData.length-1) downBtn.onclick=e=>{ e.stopPropagation(); moveClass(idx,1); }; const delBtn=document.createElement('button'); delBtn.innerHTML='🗑️'; delBtn.className='delete-class'; delBtn.onclick=e=>{ e.stopPropagation(); deleteClassById(cls.id); }; actionsDiv.appendChild(editBtn); actionsDiv.appendChild(upBtn); actionsDiv.appendChild(downBtn); actionsDiv.appendChild(delBtn); li.appendChild(nameSpan); li.appendChild(actionsDiv); li.onclick=e=>{ if(e.target.tagName==='BUTTON') return; currentEditClassId=cls.id; refreshModalClassList(); refreshStudentManagerUI(); }; container.appendChild(li); });
+        if(!classData.length) container.innerHTML='<div class="empty-tip">暂无班级，点击新建</div>';
     }
-
-    function inlineEditClassname(classId, spanElement) {
-        const cls = classData.find(c=>c.id===classId); 
-        if(!cls) return;
-        const input = document.createElement('input'); 
-        input.value = cls.name; 
-        input.className = 'inline-input';
-        spanElement.innerText = ''; 
-        spanElement.appendChild(input); 
-        input.focus();
-        const save = () => { 
-            const newName = input.value.trim(); 
-            if(newName) cls.name = newName; 
-            if(currentClassId === classId) renderClassSelect(); 
-            refreshModalClassList(); 
-        };
-        input.addEventListener('blur', save); 
-        input.addEventListener('keypress', (e) => { if(e.key === 'Enter') input.blur(); });
-    }
-
-    function moveClass(index, direction) { 
-        let newIdx = index+direction; 
-        if(newIdx<0||newIdx>=classData.length) return; 
-        [classData[index], classData[newIdx]] = [classData[newIdx], classData[index]]; 
-        if(currentEditClassId === classData[index].id) currentEditClassId = classData[newIdx].id; 
-        else if(currentEditClassId === classData[newIdx].id) currentEditClassId = classData[index].id; 
-        refreshModalClassList(); 
-        refreshStudentManagerUI(); 
-    }
-
-    function deleteClassById(classId) { 
-        if(classData.length===1) { alert("至少保留一个班级"); return; } 
-        const idx = classData.findIndex(c=>c.id===classId); 
-        if(idx!==-1){ 
-            classData.splice(idx,1); 
-            if(currentEditClassId === classId) currentEditClassId = classData[0]?.id||null; 
-            if(currentClassId === classId){ 
-                currentClassId = classData[0]?.id||null; 
-                eliminatedSet.clear(); 
-                rankOrder = []; 
-            } 
-            refreshModalClassList(); 
-            refreshStudentManagerUI(); 
-            renderClassSelect(); 
-            refreshFullUI(); 
-        } 
-    }
-
-    function refreshStudentManagerUI() {
-        const container = document.getElementById('studentListModalContainer');
-        const titleSpan = document.getElementById('currentClassNameDisplay');
-        if (!currentEditClassId) { titleSpan.innerText = '未选中班级'; container.innerHTML = '<div class="empty-tip">请从左侧选择一个班级</div>'; return; }
-        const cls = classData.find(c=>c.id===currentEditClassId); if(!cls) return;
-        titleSpan.innerText = `📖 ${escapeHtml(cls.name)}  (${cls.students.length}人)`;
-        container.innerHTML = '';
-        cls.students.forEach((stu, idx) => {
-            const div = document.createElement('div'); div.className = 'student-item';
-            const nameSpan = document.createElement('span'); nameSpan.className = 'student-name-display'; nameSpan.innerText = stu;
-            nameSpan.ondblclick = (e) => { e.stopPropagation(); inlineEditStudent(cls.id, idx, nameSpan); };
-            const delBtn = document.createElement('button'); delBtn.innerText = '🗑️'; delBtn.className = 'delete-student';
-            delBtn.onclick = (e) => { e.stopPropagation(); cls.students.splice(idx,1); refreshStudentManagerUI(); };
-            div.appendChild(nameSpan); div.appendChild(delBtn); container.appendChild(div);
-        });
-        if(cls.students.length===0) container.innerHTML = '<div class="empty-tip">暂无学生，可批量导入或添加</div>';
-    }
-
-    function inlineEditStudent(classId, studentIdx, spanElement) {
-        const cls = classData.find(c=>c.id===classId); if(!cls) return;
-        const input = document.createElement('input'); input.value = cls.students[studentIdx]; input.className = 'inline-input';
-        spanElement.innerText = ''; spanElement.appendChild(input); input.focus();
-        const save = () => { let newVal = input.value.trim(); if(newVal) cls.students[studentIdx] = newVal; refreshStudentManagerUI(); };
-        input.addEventListener('blur', save); input.addEventListener('keypress', (e) => { if(e.key === 'Enter') input.blur(); });
-    }
-
-    function batchImport() { if(!currentEditClassId) return; const raw = document.getElementById('batchNamesInput').value; if(!raw.trim()) return; const lines = raw.split(/\r?\n/).filter(l=>l.trim()); if(lines.length){ const cls = classData.find(c=>c.id===currentEditClassId); if(cls){ cls.students = lines.map(l=>l.trim()); refreshStudentManagerUI(); document.getElementById('batchNamesInput').value = ''; } } }
-    function addSingleStudent() { if(!currentEditClassId) return; const input = document.getElementById('newStudentName'); const name = input.value.trim(); if(name){ const cls = classData.find(c=>c.id===currentEditClassId); if(cls) { cls.students.push(name); refreshStudentManagerUI(); input.value=''; } } }
-    function saveAndExit() { if(currentClassId){ const curExists = classData.find(c=>c.id===currentClassId); if(curExists){ eliminatedSet.clear(); rankOrder = []; } else if(classData.length){ currentClassId = classData[0].id; eliminatedSet.clear(); rankOrder = []; } } saveData(); refreshFullUI(); closeModal(); }
+    function inlineEditClassname(classId,spanElement){ const cls=classData.find(c=>c.id===classId); if(!cls) return; const input=document.createElement('input'); input.value=cls.name; input.className='inline-input'; spanElement.innerText=''; spanElement.appendChild(input); input.focus(); const save=()=>{ const newName=input.value.trim(); if(newName) cls.name=newName; if(currentClassId===classId) renderClassSelect(); refreshModalClassList(); }; input.addEventListener('blur',save); input.addEventListener('keypress',e=>{if(e.key==='Enter') input.blur();}); }
+    function moveClass(index,direction){ let newIdx=index+direction; if(newIdx<0||newIdx>=classData.length) return; [classData[index],classData[newIdx]]=[classData[newIdx],classData[index]]; if(currentEditClassId===classData[index].id) currentEditClassId=classData[newIdx].id; else if(currentEditClassId===classData[newIdx].id) currentEditClassId=classData[index].id; refreshModalClassList(); refreshStudentManagerUI(); }
+    function deleteClassById(classId){ if(classData.length===1){ alert("至少保留一个班级"); return; } const idx=classData.findIndex(c=>c.id===classId); if(idx!==-1){ classData.splice(idx,1); if(currentEditClassId===classId) currentEditClassId=classData[0]?.id||null; if(currentClassId===classId){ currentClassId=classData[0]?.id||null; eliminatedSet.clear(); rankOrder=[]; } refreshModalClassList(); refreshStudentManagerUI(); renderClassSelect(); refreshFullUI(); loadGroupConfig(); loadEliminatedState(); } }
+    function refreshStudentManagerUI(){ const container=document.getElementById('studentListModalContainer'),titleSpan=document.getElementById('currentClassNameDisplay'); if(!currentEditClassId){ titleSpan.innerText='未选中班级'; container.innerHTML='<div class="empty-tip">请从左侧选择一个班级</div>'; return; } const cls=classData.find(c=>c.id===currentEditClassId); if(!cls) return; titleSpan.innerText=`📖 ${escapeHtml(cls.name)} (${cls.students.length}人)`; container.innerHTML=''; cls.students.forEach((stu,idx)=>{ const div=document.createElement('div'); div.className='student-item'; const nameSpan=document.createElement('span'); nameSpan.className='student-name-display'; nameSpan.innerText=stu; nameSpan.ondblclick=e=>{ e.stopPropagation(); inlineEditStudent(cls.id,idx,nameSpan); }; const delBtn=document.createElement('button'); delBtn.innerText='🗑️'; delBtn.className='delete-student'; delBtn.onclick=e=>{ e.stopPropagation(); cls.students.splice(idx,1); refreshStudentManagerUI(); if(currentClassId===cls.id) { syncAfterStudentChange(); } }; div.appendChild(nameSpan); div.appendChild(delBtn); container.appendChild(div); }); if(cls.students.length===0) container.innerHTML='<div class="empty-tip">暂无学生，可批量导入或添加</div>'; }
+    function inlineEditStudent(classId,studentIdx,spanElement){ const cls=classData.find(c=>c.id===classId); if(!cls) return; const input=document.createElement('input'); input.value=cls.students[studentIdx]; input.className='inline-input'; spanElement.innerText=''; spanElement.appendChild(input); input.focus(); const save=()=>{ let newVal=input.value.trim(); if(newVal) cls.students[studentIdx]=newVal; refreshStudentManagerUI(); if(currentClassId===classId) syncAfterStudentChange(); }; input.addEventListener('blur',save); input.addEventListener('keypress',e=>{if(e.key==='Enter') input.blur();}); }
+    function batchImport(){ if(!currentEditClassId) return; const raw=document.getElementById('batchNamesInput').value; if(!raw.trim()) return; const lines=raw.split(/\r?\n/).filter(l=>l.trim()); if(lines.length){ const cls=classData.find(c=>c.id===currentEditClassId); if(cls){ cls.students=lines.map(l=>l.trim()); refreshStudentManagerUI(); if(currentClassId===currentEditClassId) syncAfterStudentChange(); document.getElementById('batchNamesInput').value=''; } } }
+    function addSingleStudent(){ if(!currentEditClassId) return; const input=document.getElementById('newStudentName'); const name=input.value.trim(); if(name){ const cls=classData.find(c=>c.id===currentEditClassId); if(cls){ cls.students.push(name); refreshStudentManagerUI(); if(currentClassId===currentEditClassId) syncAfterStudentChange(); input.value=''; } } }
+    function saveAndExit(){ if(currentClassId){ const curExists=classData.find(c=>c.id===currentClassId); if(curExists){ eliminatedSet.clear(); rankOrder=[]; } else if(classData.length){ currentClassId=classData[0].id; eliminatedSet.clear(); rankOrder=[]; } } saveData(); refreshFullUI(); closeModal(); syncAfterStudentChange(); loadGroupConfig(); loadEliminatedState(); }
 
     window.onload = () => {
         loadData();
         if(!currentClassId && classData.length) currentClassId = classData[0].id;
-        eliminatedSet.clear(); rankOrder = [];
+        loadGroupConfig();      // 加载分组配置
+        loadEliminatedState();  // 加载消除状态
         refreshFullUI();
         resetTimer();
+        // 绑定事件
         document.getElementById('startTimerBtn').onclick = startCountdown;
         document.getElementById('resetTimerBtn').onclick = resetTimer;
         document.getElementById('fullscreenBtn').onclick = toggleFullscreen;
@@ -1020,6 +1055,16 @@
         document.getElementById('importBatchBtn').onclick = batchImport;
         document.getElementById('addStudentBtn').onclick = addSingleStudent;
         document.getElementById('resetActivityBtn').onclick = () => { resetCurrentActivity(); };
+        // 分组控件
+        const groupCountInput = document.getElementById('groupCountInput');
+        groupCountInput.addEventListener('change', () => {
+            let val = parseInt(groupCountInput.value);
+            if (isNaN(val)) val = 3;
+            val = Math.min(6, Math.max(1, val));
+            groupCountInput.value = val;
+            setGroupCount(val);
+        });
+        document.getElementById('randomGroupBtn').onclick = () => { randomGrouping(); };
         renderClassSelect();
     };
 </script>
