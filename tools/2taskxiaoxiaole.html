@@ -83,6 +83,21 @@
             padding: 0 12px 0 6px;
             border-radius: 48px;
         }
+        .edit-title-btn {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: #8aa07a;
+            padding: 0 4px;
+            border-radius: 30px;
+            transition: 0.1s;
+            order: -1;
+        }
+        .edit-title-btn:hover {
+            background: #e0e9d4;
+            transform: scale(0.95);
+        }
         .main-title {
             font-size: 2rem;
             font-weight: 600;
@@ -93,20 +108,6 @@
             transition: 0.1s;
             white-space: nowrap;
         }
-        .edit-title-btn {
-            background: none;
-            border: none;
-            font-size: 1.1rem;
-            cursor: pointer;
-            color: #8aa07a;
-            padding: 0 4px;
-            border-radius: 30px;
-            transition: 0.1s;
-        }
-        .edit-title-btn:hover {
-            background: #e0e9d4;
-            transform: scale(0.95);
-        }
         .subtitle {
             font-size: 0.85rem;
             color: #8aa07a;
@@ -116,7 +117,7 @@
             margin-left: 6px;
         }
 
-        /* 中间功能区：强制一排，不换行 */
+        /* 中间功能区：一排显示 */
         .function-bar {
             flex: 2;
             display: flex;
@@ -167,7 +168,6 @@
             font-family: 'Quicksand', monospace;
             font-size: 0.8rem;
         }
-        /* 更小的开始重置按钮 */
         .small-icon-btn {
             background: #e5efdb;
             border: none;
@@ -182,7 +182,6 @@
         .small-icon-btn:hover {
             background: #d1e0be;
         }
-        /* 完成进度 - 只显示数字 */
         .stats-box {
             display: flex;
             align-items: baseline;
@@ -203,7 +202,6 @@
             border-radius: 48px;
             font-family: monospace;
         }
-        /* 全屏按钮 - 纯图标设计 */
         .fullscreen-icon {
             background: #e5efdb;
             border: none;
@@ -250,7 +248,7 @@
             cursor: pointer;
         }
 
-        /* 游戏面板 (泡泡+英雄榜) 完全保留原样 */
+        /* 游戏面板 */
         .game-panel {
             display: flex;
             flex-wrap: wrap;
@@ -374,7 +372,7 @@
         .rank-list li.second .rank-name { color: #5f8b9c; font-weight: 800; }
         .rank-list li.third .rank-name { color: #cd7a32; font-weight: 800; }
 
-        /* 班级管理弹窗 (保留完整) */
+        /* 班级管理弹窗 */
         .modal {
             display: none;
             position: fixed;
@@ -443,16 +441,30 @@
             font-weight: bold;
             flex: 1;
             cursor: pointer;
+            padding: 2px 4px;
         }
-        .move-btns button, .delete-class {
+        /* 班级操作按钮组 */
+        .class-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .class-actions button {
             background: none;
             border: none;
             font-size: 0.9rem;
             cursor: pointer;
-            margin: 0 2px;
             color: #9b8463;
+            padding: 2px 6px;
+            border-radius: 20px;
+            transition: 0.1s;
         }
-        .delete-class { color: #bc7a5a; }
+        .class-actions button:hover {
+            background: #e8ddcc;
+        }
+        .delete-class {
+            color: #bc7a5a;
+        }
         .new-class-btn {
             margin-top: 20px;
             background: #d4e2c4;
@@ -518,7 +530,6 @@
             100% { opacity: 0; transform: translateX(-50%) translateY(-20px); visibility: hidden;}
         }
         .empty-tip { color: #b6a27e; text-align: center; padding: 20px; }
-        /* 署名固定底层，隶体淡色块 */
         .signature {
             position: fixed;
             bottom: 12px;
@@ -540,18 +551,15 @@
 <body>
 <div class="app-container">
     <div class="header">
-        <!-- 左侧：可编辑任务标题 -->
         <div class="title-section">
             <div class="task-title-wrapper">
-                <span id="taskTitle" class="main-title">📖 TASK消消乐</span>
                 <button id="editTaskBtn" class="edit-title-btn" title="点击修改任务名称">✏️</button>
+                <span id="taskTitle" class="main-title">📖 TASK消消乐</span>
             </div>
             <div class="subtitle">✨ I learned I'm happy ✨</div>
         </div>
 
-        <!-- 中间功能区：一排显示 -->
         <div class="function-bar">
-            <!-- 倒计时区域 -->
             <div class="timer-box">
                 <span>⏳</span>
                 <div id="timerDisplay">05:00</div>
@@ -561,16 +569,13 @@
                     <button id="resetTimerBtn" class="small-icon-btn">重置</button>
                 </div>
             </div>
-            <!-- 完成进度 - 只显示数字 + 图标 -->
             <div class="stats-box">
                 <span class="stats-icon">✅</span>
                 <span id="completionStats">0 / 0</span>
             </div>
-            <!-- 全屏按钮 - 纯图标重新设计 -->
             <button id="fullscreenBtn" class="fullscreen-icon" title="全屏模式">⤢</button>
         </div>
 
-        <!-- 右侧班级管理 -->
         <div class="class-control">
             <select id="globalClassSelect" class="current-class-select"></select>
             <button id="classManageBtn" class="class-manage-btn">📚 班级管理</button>
@@ -597,7 +602,7 @@
 </div>
 <div class="signature">小琴调</div>
 
-<!-- 班级管理弹窗（完整保留原有结构） -->
+<!-- 班级管理弹窗 -->
 <div id="classModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -637,7 +642,6 @@
     let currentClassId = null;
     let eliminatedSet = new Set();     
     let rankOrder = [];        
-    // 可编辑任务名称存储
     let customTaskName = localStorage.getItem('customTaskName') || "📖 TASK消消乐";
 
     const cheers = [
@@ -679,7 +683,6 @@
         saveData();
     }
 
-    // 更新完成进度数字
     function updateCompletionStats() {
         const curClass = classData.find(c => c.id === currentClassId);
         if (!curClass) {
@@ -752,7 +755,6 @@
         renderClassSelect();
         renderBubblesAndRank();
         updateCompletionStats();
-        // 更新任务标题显示
         document.getElementById('taskTitle').innerHTML = customTaskName;
     }
 
@@ -778,7 +780,7 @@
         };
     }
 
-    // ---------- 倒计时模块（修正精确分钟）----------
+    // 倒计时模块
     let countdownInterval = null;
     let remainingSeconds = 300;
     function updateTimerDisplay() {
@@ -794,7 +796,6 @@
     }
     function startCountdown() {
         stopCountdown();
-        // 从输入框获取分钟，精确转为秒
         let minutesVal = parseFloat(document.getElementById('timerMinutes').value);
         if (isNaN(minutesVal) || minutesVal <= 0) minutesVal = 5;
         remainingSeconds = Math.floor(minutesVal * 60);
@@ -803,7 +804,6 @@
         countdownInterval = setInterval(() => {
             if (remainingSeconds <= 0) {
                 stopCountdown();
-                // 声音提示
                 const utterance = new SpeechSynthesisUtterance("Time is up! 时间到啦");
                 utterance.lang = 'en-US';
                 speechSynthesis.speak(utterance);
@@ -834,7 +834,6 @@
         updateTimerDisplay();
     }
 
-    // 全屏功能（图标重新设计，功能不变）
     function toggleFullscreen() {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(err => console.log(err));
@@ -843,7 +842,6 @@
         }
     }
 
-    // 任务名称编辑
     function editTaskName() {
         const newName = prompt("请输入任务名称（例如：背诵古诗）", customTaskName.replace(/^📖 /, ''));
         if (newName && newName.trim()) {
@@ -855,41 +853,124 @@
         }
     }
 
-    // ---------- 班级管理弹窗逻辑（完整保留）----------
+    // ---------- 班级管理弹窗逻辑（修改：为每个班级增加编辑按钮）----------
     let currentEditClassId = null;
     let modal = null;
     function openModal() { if (!modal) modal = document.getElementById('classModal'); currentEditClassId = currentClassId; refreshModalClassList(); refreshStudentManagerUI(); modal.style.display = 'flex'; }
     function closeModal() { if(modal) modal.style.display = 'none'; }
+
     function refreshModalClassList() {
         const container = document.getElementById('classListModal');
         container.innerHTML = '';
         classData.forEach((cls, idx) => {
-            const li = document.createElement('li'); li.className = 'class-item';
+            const li = document.createElement('li'); 
+            li.className = 'class-item';
             if (currentEditClassId === cls.id) li.classList.add('active');
-            const nameSpan = document.createElement('span'); nameSpan.className = 'class-name'; nameSpan.innerText = cls.name;
+            
+            // 班级名称显示区域（支持双击编辑）
+            const nameSpan = document.createElement('span'); 
+            nameSpan.className = 'class-name'; 
+            nameSpan.innerText = cls.name;
             nameSpan.ondblclick = (e) => { e.stopPropagation(); inlineEditClassname(cls.id, nameSpan); };
-            const moveDiv = document.createElement('div'); moveDiv.className = 'move-btns';
-            moveDiv.innerHTML = `<button class="move-up" ${idx===0?'disabled style="opacity:0.4;"':''}>↑</button>
-                                 <button class="move-down" ${idx===classData.length-1?'disabled style="opacity:0.4;"':''}>↓</button>
-                                 <button class="delete-class">🗑️</button>`;
-            const upBtn = moveDiv.querySelector('.move-up'); if(upBtn && idx!==0) upBtn.onclick = (e) => { e.stopPropagation(); moveClass(idx, -1); };
-            const downBtn = moveDiv.querySelector('.move-down'); if(downBtn && idx!==classData.length-1) downBtn.onclick = (e) => { e.stopPropagation(); moveClass(idx, 1); };
-            const delBtn = moveDiv.querySelector('.delete-class'); delBtn.onclick = (e) => { e.stopPropagation(); deleteClassById(cls.id); };
-            li.appendChild(nameSpan); li.appendChild(moveDiv);
-            li.onclick = (e) => { if(e.target.tagName === 'BUTTON') return; currentEditClassId = cls.id; refreshModalClassList(); refreshStudentManagerUI(); };
+            
+            // 操作按钮组：编辑按钮 + 上下移动 + 删除
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'class-actions';
+            
+            // 编辑按钮（铅笔图标）
+            const editBtn = document.createElement('button');
+            editBtn.innerHTML = '✏️';
+            editBtn.title = '编辑班级名称';
+            editBtn.onclick = (e) => {
+                e.stopPropagation();
+                // 直接调用编辑功能，使用当前显示的名称
+                inlineEditClassname(cls.id, nameSpan);
+            };
+            
+            const upBtn = document.createElement('button');
+            upBtn.innerHTML = '↑';
+            upBtn.title = '上移';
+            if (idx === 0) upBtn.disabled = true;
+            else upBtn.onclick = (e) => { e.stopPropagation(); moveClass(idx, -1); };
+            
+            const downBtn = document.createElement('button');
+            downBtn.innerHTML = '↓';
+            downBtn.title = '下移';
+            if (idx === classData.length-1) downBtn.disabled = true;
+            else downBtn.onclick = (e) => { e.stopPropagation(); moveClass(idx, 1); };
+            
+            const delBtn = document.createElement('button');
+            delBtn.innerHTML = '🗑️';
+            delBtn.title = '删除班级';
+            delBtn.className = 'delete-class';
+            delBtn.onclick = (e) => { e.stopPropagation(); deleteClassById(cls.id); };
+            
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(upBtn);
+            actionsDiv.appendChild(downBtn);
+            actionsDiv.appendChild(delBtn);
+            
+            li.appendChild(nameSpan);
+            li.appendChild(actionsDiv);
+            
+            li.onclick = (e) => { 
+                if(e.target.tagName === 'BUTTON') return; 
+                currentEditClassId = cls.id; 
+                refreshModalClassList(); 
+                refreshStudentManagerUI(); 
+            };
             container.appendChild(li);
         });
         if(!classData.length) container.innerHTML = '<div class="empty-tip">暂无班级，点击新建</div>';
     }
+
     function inlineEditClassname(classId, spanElement) {
-        const cls = classData.find(c=>c.id===classId); if(!cls) return;
-        const input = document.createElement('input'); input.value = cls.name; input.className = 'inline-input';
-        spanElement.innerText = ''; spanElement.appendChild(input); input.focus();
-        const save = () => { const newName = input.value.trim(); if(newName) cls.name = newName; if(currentClassId === classId) renderClassSelect(); refreshModalClassList(); };
-        input.addEventListener('blur', save); input.addEventListener('keypress', (e) => { if(e.key === 'Enter') input.blur(); });
+        const cls = classData.find(c=>c.id===classId); 
+        if(!cls) return;
+        const input = document.createElement('input'); 
+        input.value = cls.name; 
+        input.className = 'inline-input';
+        spanElement.innerText = ''; 
+        spanElement.appendChild(input); 
+        input.focus();
+        const save = () => { 
+            const newName = input.value.trim(); 
+            if(newName) cls.name = newName; 
+            if(currentClassId === classId) renderClassSelect(); 
+            refreshModalClassList(); 
+        };
+        input.addEventListener('blur', save); 
+        input.addEventListener('keypress', (e) => { if(e.key === 'Enter') input.blur(); });
     }
-    function moveClass(index, direction) { let newIdx = index+direction; if(newIdx<0||newIdx>=classData.length) return; [classData[index], classData[newIdx]] = [classData[newIdx], classData[index]]; if(currentEditClassId === classData[index].id) currentEditClassId = classData[newIdx].id; else if(currentEditClassId === classData[newIdx].id) currentEditClassId = classData[index].id; refreshModalClassList(); refreshStudentManagerUI(); }
-    function deleteClassById(classId) { if(classData.length===1) { alert("至少保留一个班级"); return; } const idx = classData.findIndex(c=>c.id===classId); if(idx!==-1){ classData.splice(idx,1); if(currentEditClassId === classId) currentEditClassId = classData[0]?.id||null; if(currentClassId === classId){ currentClassId = classData[0]?.id||null; eliminatedSet.clear(); rankOrder = []; } refreshModalClassList(); refreshStudentManagerUI(); renderClassSelect(); refreshFullUI(); } }
+
+    function moveClass(index, direction) { 
+        let newIdx = index+direction; 
+        if(newIdx<0||newIdx>=classData.length) return; 
+        [classData[index], classData[newIdx]] = [classData[newIdx], classData[index]]; 
+        if(currentEditClassId === classData[index].id) currentEditClassId = classData[newIdx].id; 
+        else if(currentEditClassId === classData[newIdx].id) currentEditClassId = classData[index].id; 
+        refreshModalClassList(); 
+        refreshStudentManagerUI(); 
+    }
+
+    function deleteClassById(classId) { 
+        if(classData.length===1) { alert("至少保留一个班级"); return; } 
+        const idx = classData.findIndex(c=>c.id===classId); 
+        if(idx!==-1){ 
+            classData.splice(idx,1); 
+            if(currentEditClassId === classId) currentEditClassId = classData[0]?.id||null; 
+            if(currentClassId === classId){ 
+                currentClassId = classData[0]?.id||null; 
+                eliminatedSet.clear(); 
+                rankOrder = []; 
+            } 
+            refreshModalClassList(); 
+            refreshStudentManagerUI(); 
+            renderClassSelect(); 
+            refreshFullUI(); 
+        } 
+    }
+
     function refreshStudentManagerUI() {
         const container = document.getElementById('studentListModalContainer');
         const titleSpan = document.getElementById('currentClassNameDisplay');
@@ -907,6 +988,7 @@
         });
         if(cls.students.length===0) container.innerHTML = '<div class="empty-tip">暂无学生，可批量导入或添加</div>';
     }
+
     function inlineEditStudent(classId, studentIdx, spanElement) {
         const cls = classData.find(c=>c.id===classId); if(!cls) return;
         const input = document.createElement('input'); input.value = cls.students[studentIdx]; input.className = 'inline-input';
@@ -914,6 +996,7 @@
         const save = () => { let newVal = input.value.trim(); if(newVal) cls.students[studentIdx] = newVal; refreshStudentManagerUI(); };
         input.addEventListener('blur', save); input.addEventListener('keypress', (e) => { if(e.key === 'Enter') input.blur(); });
     }
+
     function batchImport() { if(!currentEditClassId) return; const raw = document.getElementById('batchNamesInput').value; if(!raw.trim()) return; const lines = raw.split(/\r?\n/).filter(l=>l.trim()); if(lines.length){ const cls = classData.find(c=>c.id===currentEditClassId); if(cls){ cls.students = lines.map(l=>l.trim()); refreshStudentManagerUI(); document.getElementById('batchNamesInput').value = ''; } } }
     function addSingleStudent() { if(!currentEditClassId) return; const input = document.getElementById('newStudentName'); const name = input.value.trim(); if(name){ const cls = classData.find(c=>c.id===currentEditClassId); if(cls) { cls.students.push(name); refreshStudentManagerUI(); input.value=''; } } }
     function saveAndExit() { if(currentClassId){ const curExists = classData.find(c=>c.id===currentClassId); if(curExists){ eliminatedSet.clear(); rankOrder = []; } else if(classData.length){ currentClassId = classData[0].id; eliminatedSet.clear(); rankOrder = []; } } saveData(); refreshFullUI(); closeModal(); }
@@ -928,6 +1011,7 @@
         document.getElementById('resetTimerBtn').onclick = resetTimer;
         document.getElementById('fullscreenBtn').onclick = toggleFullscreen;
         document.getElementById('editTaskBtn').onclick = editTaskName;
+        document.getElementById('taskTitle').ondblclick = editTaskName;
         document.getElementById('classManageBtn').onclick = openModal;
         document.getElementById('closeModalBtn').onclick = closeModal;
         document.getElementById('cancelModalBtn').onclick = closeModal;
